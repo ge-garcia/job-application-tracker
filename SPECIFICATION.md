@@ -8,14 +8,14 @@ Build a complete web application to track job applications. Use MySQL for data, 
 
 ## Grading Breakdown (20% of Course)
 
-| Component                        | Points  | %        |
+| Component                        |  Points |        % |
 | -------------------------------- | ------: | -------: |
-| Database Design & Implementation | 25      | 25%      |
-| CRUD Functionality               | 25      | 25%      |
-| User Interface                   | 15      | 15%      |
-| Job Match Feature                | 15      | 15%      |
-| Code Quality & GitHub            | 10      | 10%      |
-| GenAI Documentation              | 10      | 10%      |
+| Database Design & Implementation |      25 |      25% |
+| CRUD Functionality               |      25 |      25% |
+| User Interface                   |      15 |      15% |
+| Job Match Feature                |      15 |      15% |
+| Code Quality & GitHub            |      10 |      10% |
+| GenAI Documentation              |      10 |      10% |
 | **TOTAL**                        | **100** | **100%** |
 
 ## Required Technologies (All Free)
@@ -30,54 +30,54 @@ Build a complete web application to track job applications. Use MySQL for data, 
 
 ### `companies`
 
-| Column         | Type           | Constraints                         |
-| -------------- | -------------- | ----------------------------------- |
-| `company_id`   | `INT`          | `PRIMARY KEY`, `AUTO_INCREMENT`      |
-| `company_name` | `VARCHAR(100)` | `NOT NULL`                          |
-| `industry`     | `VARCHAR(50)`  |                                     |
-| `website`      | `VARCHAR(200)` |                                     |
-| `city`         | `VARCHAR(50)`  |                                     |
-| `state`        | `VARCHAR(50)`  |                                     |
-| `notes`        | `TEXT`         |                                     |
+| Column         | Type           | Constraints                     |
+| -------------- | -------------- | ------------------------------- |
+| `company_id`   | `INT`          | `PRIMARY KEY`, `AUTO_INCREMENT` |
+| `company_name` | `VARCHAR(100)` | `NOT NULL`                      |
+| `industry`     | `VARCHAR(50)`  |                                 |
+| `website`      | `VARCHAR(200)` |                                 |
+| `city`         | `VARCHAR(50)`  |                                 |
+| `state`        | `VARCHAR(50)`  |                                 |
+| `notes`        | `TEXT`         |                                 |
 
 ### `jobs`
 
-| Column         | Type                                                   | Constraints                    |
-| -------------- | ------------------------------------------------------ | ------------------------------ |
-| `job_id`       | `INT`                                                  | `PRIMARY KEY`, `AUTO_INCREMENT` |
-| `company_id`   | `INT`                                                  | Foreign key → `companies`      |
-| `job_title`    | `VARCHAR(100)`                                         | `NOT NULL`                     |
-| `job_type`     | `ENUM('Full-time','Part-time','Contract','Internship')` |                                |
-| `salary_min`   | `INT`                                                  |                                |
-| `salary_max`   | `INT`                                                  |                                |
-| `job_url`      | `VARCHAR(300)`                                         |                                |
-| `date_posted`  | `DATE`                                                 |                                |
-| `requirements` | `JSON`                                                 |                                |
+| Column         | Type                                                    | Constraints                     |
+| -------------- | ------------------------------------------------------- | ------------------------------- |
+| `job_id`       | `INT`                                                   | `PRIMARY KEY`, `AUTO_INCREMENT` |
+| `company_id`   | `INT`                                                   | Foreign key → `companies`       |
+| `job_title`    | `VARCHAR(100)`                                          | `NOT NULL`                      |
+| `job_type`     | `ENUM('Full-time','Part-time','Contract','Internship')` |                                 |
+| `salary_min`   | `INT`                                                   |                                 |
+| `salary_max`   | `INT`                                                   |                                 |
+| `job_url`      | `VARCHAR(300)`                                          |                                 |
+| `date_posted`  | `DATE`                                                  |                                 |
+| `requirements` | `JSON`                                                  |                                 |
 
 ### `applications`
 
-| Column              | Type                                                                   | Constraints                    |
-| ------------------- | ---------------------------------------------------------------------- | ------------------------------ |
-| `application_id`    | `INT`                                                                  | `PRIMARY KEY`, `AUTO_INCREMENT` |
-| `job_id`            | `INT`                                                                  | Foreign key → `jobs`            |
-| `application_date`  | `DATE`                                                                 | `NOT NULL`                     |
-| `status`            | `ENUM('Applied','Screening','Interview','Offer','Rejected','Withdrawn')` |                                |
-| `resume_version`    | `VARCHAR(50)`                                                          |                                |
-| `cover_letter_sent` | `BOOLEAN`                                                              |                                |
-| `interview_data`    | `JSON`                                                                 |                                |
+| Column              | Type                                                                     | Constraints                     |
+| ------------------- | ------------------------------------------------------------------------ | ------------------------------- |
+| `application_id`    | `INT`                                                                    | `PRIMARY KEY`, `AUTO_INCREMENT` |
+| `job_id`            | `INT`                                                                    | Foreign key → `jobs`            |
+| `application_date`  | `DATE`                                                                   | `NOT NULL`                      |
+| `status`            | `ENUM('Applied','Screening','Interview','Offer','Rejected','Withdrawn')` |                                 |
+| `resume_version`    | `VARCHAR(50)`                                                            |                                 |
+| `cover_letter_sent` | `BOOLEAN`                                                                |                                 |
+| `interview_data`    | `JSON`                                                                   |                                 |
 
 ### `contacts`
 
-| Column         | Type           | Constraints                    |
-| -------------- | -------------- | ------------------------------ |
+| Column         | Type           | Constraints                     |
+| -------------- | -------------- | ------------------------------- |
 | `contact_id`   | `INT`          | `PRIMARY KEY`, `AUTO_INCREMENT` |
-| `company_id`   | `INT`          | Foreign key → `companies`      |
-| `contact_name` | `VARCHAR(100)` | `NOT NULL`                     |
-| `title`        | `VARCHAR(100)` |                                |
-| `email`        | `VARCHAR(100)` |                                |
-| `phone`        | `VARCHAR(20)`  |                                |
-| `linkedin_url` | `VARCHAR(200)` |                                |
-| `notes`        | `TEXT`         |                                |
+| `company_id`   | `INT`          | Foreign key → `companies`       |
+| `contact_name` | `VARCHAR(100)` | `NOT NULL`                      |
+| `title`        | `VARCHAR(100)` |                                 |
+| `email`        | `VARCHAR(100)` |                                 |
+| `phone`        | `VARCHAR(20)`  |                                 |
+| `linkedin_url` | `VARCHAR(200)` |                                 |
+| `notes`        | `TEXT`         |                                 |
 
 ## Required Features
 
@@ -232,9 +232,9 @@ if __name__ == '__main__':
 
 ## Grading Rubric Detail
 
-| Category         | Excellent                                     | Good                                  | Needs Work                            |
-| ---------------- | --------------------------------------------- | ------------------------------------- | ------------------------------------- |
-| Database (25)    | All 4 tables, proper FKs, JSON columns (23–25)  | 3–4 tables, most relationships (18–22) | Missing tables or relationships (<18) |
+| Category         | Excellent                                      | Good                                   | Needs Work                            |
+| ---------------- | ---------------------------------------------- | -------------------------------------- | ------------------------------------- |
+| Database (25)    | All 4 tables, proper FKs, JSON columns (23–25) | 3–4 tables, most relationships (18–22) | Missing tables or relationships (<18) |
 | CRUD (25)        | Full CRUD all tables, validation (23–25)       | CRUD most tables, minor issues (18–22) | Incomplete CRUD (<18)                 |
 | UI (15)          | Clean, intuitive, consistent (14–15)           | Functional, minor issues (11–13)       | Confusing or broken (<11)             |
 | Job Match (15)   | Works correctly, shows % (14–15)               | Partially works (11–13)                | Not implemented (<11)                 |
