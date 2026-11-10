@@ -200,24 +200,21 @@ app = Flask(__name__)
 
 def get_db():
     return mysql.connector.connect(
-        host='localhost',
-        user='root',
-        password='YOUR_PASSWORD',
-        database='job_tracker'
+        host="localhost", user="root", password="YOUR_PASSWORD", database="job_tracker"
     )
 
 
-@app.route('/')
+@app.route("/")
 def dashboard():
     conn = get_db()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute('SELECT COUNT(*) as count FROM applications')
+    cursor.execute("SELECT COUNT(*) as count FROM applications")
     stats = cursor.fetchone()
     conn.close()
-    return render_template('dashboard.html', stats=stats)
+    return render_template("dashboard.html", stats=stats)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run(debug=True)
 ```
 
