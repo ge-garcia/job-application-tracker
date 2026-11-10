@@ -3,9 +3,26 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
     <title>{% block title %}Job Application Tracker{% endblock %}</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='theme.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
   </head>
   <body>
+    <header>
+      <div class="container">
+        <p>Job Application Tracker</a>
+      </div>
+    </header>
+
+    <main class="container">
       <p>Barebones start for Job Application Tracker (Final Project for COP-4751)</p>
+    </main>
   </body>
 </html>

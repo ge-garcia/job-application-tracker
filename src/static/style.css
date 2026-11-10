@@ -1,0 +1,98 @@
+/*
+ * Semantic theme layer on top of `theme.css`, follows the rough guidelines in the docs for the palette.
+ * The light-dark usage means it'll follow system preferences, and I avoid scripting for the browser to allow toggling.
+ */
+
+:root {
+  color-scheme: light dark;
+
+  /* Neutrals */
+  --bg: light-dark(var(--flexoki-paper), var(--flexoki-black));
+  --bg-2: light-dark(var(--flexoki-50), var(--flexoki-950));
+  --ui: light-dark(var(--flexoki-100), var(--flexoki-900));
+  --ui-2: light-dark(var(--flexoki-150), var(--flexoki-850));
+  --ui-3: light-dark(var(--flexoki-200), var(--flexoki-800));
+  --tx-3: light-dark(var(--flexoki-300), var(--flexoki-700));
+  --tx-2: light-dark(var(--flexoki-600), var(--flexoki-500));
+  --tx: light-dark(var(--flexoki-black), var(--flexoki-200));
+
+  /* Accents */
+  --re: light-dark(var(--flexoki-red-600), var(--flexoki-red-400));
+  --re-2: light-dark(var(--flexoki-red-400), var(--flexoki-red-600));
+  --or: light-dark(var(--flexoki-orange-600), var(--flexoki-orange-400));
+  --or-2: light-dark(var(--flexoki-orange-400), var(--flexoki-orange-600));
+  --ye: light-dark(var(--flexoki-yellow-600), var(--flexoki-yellow-400));
+  --ye-2: light-dark(var(--flexoki-yellow-400), var(--flexoki-yellow-600));
+  --gr: light-dark(var(--flexoki-green-600), var(--flexoki-green-400));
+  --gr-2: light-dark(var(--flexoki-green-400), var(--flexoki-green-600));
+  --cy: light-dark(var(--flexoki-cyan-600), var(--flexoki-cyan-400));
+  --cy-2: light-dark(var(--flexoki-cyan-400), var(--flexoki-cyan-600));
+  --bl: light-dark(var(--flexoki-blue-600), var(--flexoki-blue-400));
+  --bl-2: light-dark(var(--flexoki-blue-400), var(--flexoki-blue-600));
+  --pu: light-dark(var(--flexoki-purple-600), var(--flexoki-purple-400));
+  --pu-2: light-dark(var(--flexoki-purple-400), var(--flexoki-purple-600));
+  --ma: light-dark(var(--flexoki-magenta-600), var(--flexoki-magenta-400));
+  --ma-2: light-dark(var(--flexoki-magenta-400), var(--flexoki-magenta-600));
+  --link: light-dark(var(--flexoki-cyan-600), var(--flexoki-cyan-400));
+}
+
+/* Reset some properties and apply theme */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--tx);
+  font:
+    1rem/1.6 system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+}
+
+body {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+h1,
+h2,
+h3 {
+  line-height: 1.25;
+  margin: 0 0 0.75rem;
+}
+
+p {
+  margin: 0 0 1rem;
+}
+
+a {
+  color: var(--link);
+  text-underline-offset: 0.18em;
+
+  &:hover {
+    text-decoration-thickness: 2px;
+  }
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid var(--ui);
+  margin: 2rem 0;
+}
+
+small,
+.muted {
+  color: var(--tx-2);
+}
+
+/* Some re-usable classes */
+
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6;
+}
