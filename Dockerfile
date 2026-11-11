@@ -12,4 +12,4 @@ COPY src/ ./src/
 
 EXPOSE 5000
 # docker-compose.yml overrides this with --debug for development.
-CMD ["flask", "--app", "src/app", "run", "--host", "0.0.0.0", "--port", "5000"]
+CMD ["flask", "--app", "src/jot/app", "run", "--host", "0.0.0.0", "--port", "5000"]

@@ -4,7 +4,7 @@ services:
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?set DB_ROOT_PASSWORD in .env}
-      MYSQL_DATABASE: ${DB_NAME:-job_tracker}
+      MYSQL_DATABASE: ${DB_NAME:-jot}
       MYSQL_USER: ${DB_USER:-app}
       MYSQL_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD in .env}
     ports:
@@ -31,7 +31,7 @@ services:
     environment:
       DB_HOST: db
       DB_PORT: "3306"
-      DB_NAME: ${DB_NAME:-job_tracker}
+      DB_NAME: ${DB_NAME:-jot}
       DB_USER: ${DB_USER:-app}
       DB_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD in .env}
     ports:

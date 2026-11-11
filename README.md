@@ -32,7 +32,7 @@ uv pip install -r requirements.txt
 And run the project (in that same virtual environment) with:
 
 ```bash
-flask --app src/app run --debug
+flask --app src/jot/app run --debug
 ```
 
 ### Docker
