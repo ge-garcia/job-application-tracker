@@ -2,42 +2,86 @@
 Helper functions in use for validating data entries
 """
 
-from collections.abc import Callable
-from typing import Any
+import json
+from collections.abc import Mapping
+from enum import Enum
+from typing import Any, Self, TypeVar
 
-from pydantic import model_validator
+from pydantic import BaseModel, ConfigDict, HttpUrl, model_validator
+
+T = TypeVar("T", bound=type[BaseModel])
 
 
-def validate_pair_rule(
-    field1: str, field2: str, predicate: Callable[[Any, Any], bool], error_msg: str
-):
+class FormModel(BaseModel):
     """
-    Generic model validator decorator using Python match/case to safely extract
-    and narrow two optional fields before evaluating a rule predicate.
+    Normalize form inputs for validating PUT/POST requests by converting
+    empty strings or whitespace-only strings to None before field parsing
+
+    Attributes:
+            model_config: Strips leading/trailing whitespace from strings
     """
 
-    def decorator(cls):
-        def validator(self):
-            val1 = getattr(self, field1, None)
-            val2 = getattr(self, field2, None)
+    model_config = ConfigDict(str_strip_whitespace=True)
 
-            match (val1, val2):
-                case (v1, v2) if v1 is not None and v2 is not None:
-                    if not predicate(v1, v2):
-                        raise ValueError(error_msg)
+    @model_validator(mode="before")
+    @classmethod
+    def blank_to_none(cls, data: Any) -> Any:
+        """Flattens empty strings in form responses (e.g., request.form) to None"""
+        if isinstance(data, Mapping):
+            return {
+                k: None if isinstance(v, str) and not v.strip() else v
+                for k, v in data.items()
+            }
+        return data
+
+    def to_params(self, *, exclude_none: bool = False) -> dict[str, Any]:
+        """Serialize model fields into a MySQL-compatible parameter dictionary"""
+        raw = self.model_dump(exclude_none=exclude_none)
+        params: dict[str, Any] = {}
+
+        for key, val in raw.items():
+            match val:
+                case HttpUrl():
+                    params[key] = str(val)
+                case Enum():
+                    params[key] = val.value
+                case dict() | list():
+                    params[key] = json.dumps(val)
                 case _:
-                    pass
-            return self
+                    params[key] = val
 
-        return model_validator(mode="after")(validator)
-
-    return decorator
+        return params
 
 
-def sanitize_empty_string(val: Any) -> Any | None:
-    """Helper for cleaning up empty or whitespace-only strings."""
-    match val:
-        case str() if not val.strip():
-            return None
-        case _:
-            return val
+class RowModel(BaseModel):
+    """
+    Immutable model for read/query projections from the database, ignoring extra query columns (like metadata)
+
+    Attributes:
+        model_config:
+            - Makes row instances immutable (frozen=True)
+            - Drops unmapped columns from SELECT queries (extra="ignore")
+            - Allows instantiation from row attributes
+    """
+
+    model_config = ConfigDict(frozen=True, extra="ignore", from_attributes=True)
+
+    @classmethod
+    def from_row(cls, row: Mapping[str, Any]) -> Self:
+        """Deserialize a mysql-connector dictionary row into a RowModel instance.
+
+        Automatically parses JSON string columns into Python lists/dicts when
+        the target field expects a collection or mapping.
+        """
+        parsed: dict[str, Any] = dict(row)
+
+        for key, val in parsed.items():
+            if isinstance(val, str) and key in cls.model_fields:
+                stripped = val.strip()
+                if stripped.startswith(("{", "[")):
+                    try:
+                        parsed[key] = json.loads(stripped)
+                    except json.JSONDecodeError:
+                        pass
+
+        return cls.model_validate(parsed)

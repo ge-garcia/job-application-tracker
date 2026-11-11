@@ -1,47 +1,56 @@
 """
-This module provides DTO models for our four tables.
-
-Each table: companies, jobs, applications, contacts gets their own respective
-Base, Create, Update, and Response models. With these models, we can enforce
-types for our tables, as well as other logical validation rules for data entry
-(e.g. salary_max cannot be < salary_min).
+DTO models for the companies, jobs, applications, and contacts tables. Each table defines:
+- Shared Fields
+- Inbound Form models (full and action-specific)
+- Outbound immutable Row models for database reads
 """
 
 from jot.models.application import (
-    ApplicationBase,
-    ApplicationCreate,
-    ApplicationResponse,
-    ApplicationUpdate,
+    ApplicationFields,
+    ApplicationForm,
+    ApplicationRow,
+    ApplicationStatus,
+    ApplicationStatusForm,
 )
 from jot.models.company import (
-    CompanyBase,
-    CompanyCreate,
-    CompanyResponse,
-    CompanyUpdate,
+    CompanyFields,
+    CompanyForm,
+    CompanyNotesForm,
+    CompanyRow,
+    CompanySummaryFields,
+    CompanySummaryRow,
 )
 from jot.models.contact import (
-    ContactBase,
-    ContactCreate,
-    ContactResponse,
-    ContactUpdate,
+    ContactFields,
+    ContactForm,
+    ContactNotesForm,
+    ContactRow,
 )
-from jot.models.job import JobBase, JobCreate, JobResponse, JobUpdate
+from jot.models.job import (
+    JobFields,
+    JobForm,
+    JobRow,
+    JobType,
+)
 
 __all__ = [
-    "ApplicationBase",
-    "ApplicationCreate",
-    "ApplicationResponse",
-    "ApplicationUpdate",
-    "CompanyBase",
-    "CompanyCreate",
-    "CompanyResponse",
-    "CompanyUpdate",
-    "ContactBase",
-    "ContactCreate",
-    "ContactResponse",
-    "ContactUpdate",
-    "JobBase",
-    "JobCreate",
-    "JobResponse",
-    "JobUpdate",
+    "ApplicationFields",
+    "ApplicationForm",
+    "ApplicationRow",
+    "ApplicationStatus",
+    "ApplicationStatusForm",
+    "CompanyFields",
+    "CompanyForm",
+    "CompanyNotesForm",
+    "CompanyRow",
+    "CompanySummaryFields",
+    "CompanySummaryRow",
+    "ContactFields",
+    "ContactForm",
+    "ContactNotesForm",
+    "ContactRow",
+    "JobFields",
+    "JobForm",
+    "JobRow",
+    "JobType",
 ]

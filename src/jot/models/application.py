@@ -4,8 +4,12 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
+from jot.models.validation import FormModel, RowModel
+
 
 class ApplicationStatus(str, Enum):
+    """Lifecycle stages for a job application"""
+
     APPLIED = "Applied"
     SCREENING = "Screening"
     INTERVIEW = "Interview"
@@ -15,27 +19,33 @@ class ApplicationStatus(str, Enum):
 
 
 # TODO: Design the type for the interview_data property, enforce validation on it
-class ApplicationBase(BaseModel):
-    job_id: int = Field(..., gt=0, description="FK referencing jobs.job_id")
+class ApplicationFields(BaseModel):
+    """Shared schema columns for a job application"""
+
+    job_id: int
     application_date: date
     status: ApplicationStatus = ApplicationStatus.APPLIED
-    resume_version: str | None = Field(None, max_length=50)
+    resume_version: str | None = None
     cover_letter_sent: bool = False
     interview_data: dict[str, Any] | None = None
 
 
-class ApplicationCreate(ApplicationBase):
-    """Payload for submitting a job application."""
+class ApplicationForm(FormModel, ApplicationFields):
+    """Validated payload for creating or editing an application"""
 
-
-class ApplicationUpdate(BaseModel):
-    job_id: int | None = Field(None, gt=0)
-    application_date: date | None = None
-    status: ApplicationStatus | None = None
+    job_id: int = Field(..., gt=0, description="FK referencing jobs.job_id")
     resume_version: str | None = Field(None, max_length=50)
-    cover_letter_sent: bool | None = None
-    interview_data: dict[str, Any] | None = None
 
 
-class ApplicationResponse(ApplicationBase):
-    application_id: int = Field(..., gt=0, description="PK cannot be null")
+class ApplicationStatusForm(FormModel):
+    """Targeted payload for updating only an application's status"""
+
+    status: ApplicationStatus
+
+
+class ApplicationRow(RowModel, ApplicationFields):
+    """Immutable database row representation of an application"""
+
+    application_id: int
+    job_title: str | None = None
+    company_name: str | None = None

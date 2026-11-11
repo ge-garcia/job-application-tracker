@@ -1,9 +1,23 @@
-from pydantic import BaseModel, EmailStr, Field, HttpUrl, field_validator
+from pydantic import BaseModel, EmailStr, Field, HttpUrl
 
-from jot.models.validation import sanitize_empty_string
+from jot.models.validation import FormModel, RowModel
 
 
-class ContactBase(BaseModel):
+class ContactFields(BaseModel):
+    """Shared schema columns for a professional contact."""
+
+    company_id: int
+    name: str
+    email: str | None = None
+    phone: str | None = None
+    job_title: str | None = None
+    linkedin_url: str | None = None
+    notes: str | None = None
+
+
+class ContactForm(FormModel, ContactFields):
+    """Validated form payload for creating or updating a contact"""
+
     company_id: int = Field(
         ..., gt=0, description="FK referencing companies.company_id"
     )
@@ -12,30 +26,16 @@ class ContactBase(BaseModel):
     phone: str | None = Field(None, max_length=20)
     job_title: str | None = Field(None, max_length=100)
     linkedin_url: HttpUrl | None = Field(None, max_length=200)
+
+
+class ContactNotesForm(FormModel):
+    """Targeted payload for updating only a contact's notes"""
+
     notes: str | None = None
 
-    @field_validator("email", "linkedin_url", mode="before")
-    def clean_strings(cls, v):
-        return sanitize_empty_string(v)
 
+class ContactRow(RowModel, ContactFields):
+    """Immutable database row representation of a contact"""
 
-class ContactCreate(ContactBase):
-    """Payload for adding a contact. Body ommitted since only ContactBase is needed"""
-
-
-class ContactUpdate(BaseModel):
-    company_id: int | None = Field(None, gt=0)
-    name: str | None = Field(None, min_length=1, max_length=100)
-    email: EmailStr | None = Field(None, max_length=100)
-    phone: str | None = Field(None, max_length=20)
-    job_title: str | None = Field(None, max_length=100)
-    linkedin_url: HttpUrl | None = Field(None, max_length=200)
-    notes: str | None = None
-
-    @field_validator("email", "linkedin_url", mode="before")
-    def clean_strings(cls, v):
-        return sanitize_empty_string(v)
-
-
-class ContactResponse(ContactBase):
-    contact_id: int = Field(..., gt=0, description="Strictly required primary key")
+    contact_id: int
+    company_name: str | None = None
