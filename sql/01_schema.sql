@@ -1,4 +1,9 @@
--- Schema matching the project specification
+-- Schema matching the project specification. What was left ambiguous was 
+-- foreign key deletion rules and defaults:
+-- For FKs, jobs(company_id) and applications(job_id) use RESTRICT, and
+-- contacts(company_id) uses ON DELETE CASCADE. The only default warranted was 
+-- on applications(status)
+
 
 CREATE TABLE companies (
     company_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -21,7 +26,9 @@ CREATE TABLE jobs (
     date_posted DATE,
     requirements JSON,
 
-    FOREIGN KEY (company_id) REFERENCES companies (company_id)
+    FOREIGN KEY (company_id)
+    REFERENCES companies (company_id)
+    ON DELETE RESTRICT
 );
 
 CREATE TABLE applications (
@@ -30,13 +37,12 @@ CREATE TABLE applications (
     application_date DATE NOT NULL,
     status ENUM(
         'Applied', 'Screening', 'Interview', 'Offer', 'Rejected', 'Withdrawn'
-    ),
+    ) DEFAULT 'Applied',
     resume_version VARCHAR(50),
-    cover_letter_sent BOOLEAN DEFAULT FALSE,
-    response_date DATE,
+    cover_letter_sent BOOLEAN,
     interview_data JSON,
 
-    FOREIGN KEY (job_id) REFERENCES jobs (job_id)
+    FOREIGN KEY (job_id) REFERENCES jobs (job_id) ON DELETE RESTRICT
 );
 
 CREATE TABLE contacts (
@@ -49,5 +55,5 @@ CREATE TABLE contacts (
     linkedin_url VARCHAR(200),
     notes TEXT,
 
-    FOREIGN KEY (company_id) REFERENCES companies (company_id)
+    FOREIGN KEY (company_id) REFERENCES companies (company_id) ON DELETE CASCADE
 );
