@@ -1,16 +1,9 @@
-# COP-4751: Job Application Tracker
+# COP-4751: Job Application Tracker: `jot`
 
 A web application project for COP-4751 at FIU. Built to help track job
 applications during the job search process.
 
-## Planned Features
-
-- [ ] Track companies and job listings
-- [ ] Record application submissions
-- [ ] Manage interview schedules
-- [ ] Store contact information
-
-## Technologies
+## Stack
 
 - [MySQL](https://dev.mysql.com/doc/) Database
 - Python with [Flask](https://flask.palletsprojects.com/en/stable/)
@@ -44,8 +37,56 @@ flask --app src/app run --debug
 
 ### Docker
 
-A Docker compose setup is included which runs the Flask application and MySQL with the `job_tracker` database created.
+A Docker compose setup is included which runs the Flask application and MySQL
+with the `job_tracker` database created. Run it with:
 
-TODO: Seed the database with some generated data
+```bash
+docker compose up -d
+```
 
-## Architecture
+And then visit the [website](http://localhost:5000)
+
+## Project Structure
+
+```
+├── README.md
+├── AGENTS.md
+├── AI_USAGE.md                    # Project AI usage trace
+├── .env                           # Configure database environment variables
+├── docker-compose.yml
+├── Dockerfile
+├── requirements.txt
+├── sql                            # Base schema, applied in Docker compose directly
+│   └── 01_schema.sql
+└── src
+    └── jot
+        ├── app.py                 # Core setup
+        ├── db.py                  # Connection configuration
+        ├── core
+        │   └── models.py          # Core types and validation
+        ├── repositories           # TODO: CRUD operations
+        ├── static                 # CSS Styling
+        │   ├── style.css
+        │   └── theme.css
+        └── templates              # Components and pages
+            ├── base.html
+            └── index.html
+```
+
+## TODO
+
+### Features in SPECIFICATION.md
+
+- [ ] Track companies and job listings
+- [ ] Record application submissions
+- [ ] Manage interview schedules
+- [ ] Store contact information
+
+## Roadmap
+
+- [ ] Seed the database with generated data
+- [ ] Finalize JSON field types
+- [ ] Create basic CRUD routes for each table
+- [ ] Generate page routing layout and their respective templates
+- [ ] Create core components, layouts, and views
+- [ ] Polish UI
