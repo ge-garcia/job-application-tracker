@@ -1,6 +1,6 @@
-from pydantic import BaseModel, Field, HttpUrl
+from pydantic import BaseModel, Field, field_validator
 
-from jot.models.validation import FormModel, RowModel
+from jot.models.validation import FormModel, RowModel, check_http_url
 
 
 class CompanySummaryFields(BaseModel):
@@ -24,9 +24,11 @@ class CompanyForm(FormModel, CompanyFields):
 
     company_name: str = Field(..., min_length=1, max_length=100)
     industry: str | None = Field(None, max_length=50)
-    website: HttpUrl | None = Field(None, max_length=200)
+    website: str | None = Field(None, max_length=200)
     city: str | None = Field(None, max_length=50)
     state: str | None = Field(None, max_length=50)
+
+    _website_valid = field_validator("website")(check_http_url)
 
 
 class CompanyNotesForm(FormModel):

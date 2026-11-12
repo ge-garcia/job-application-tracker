@@ -7,7 +7,7 @@ from collections.abc import Mapping
 from enum import Enum
 from typing import Any, Self, TypeVar
 
-from pydantic import BaseModel, ConfigDict, HttpUrl, model_validator
+from pydantic import BaseModel, ConfigDict, HttpUrl, TypeAdapter, model_validator
 
 T = TypeVar("T", bound=type[BaseModel])
 
@@ -41,8 +41,6 @@ class FormModel(BaseModel):
 
         for key, val in raw.items():
             match val:
-                case HttpUrl():
-                    params[key] = str(val)
                 case Enum():
                     params[key] = val.value
                 case dict() | list():
@@ -85,3 +83,13 @@ class RowModel(BaseModel):
                         pass
 
         return cls.model_validate(parsed)
+
+
+_http_url = TypeAdapter(HttpUrl)
+
+
+def check_http_url(value: str | None) -> str | None:
+    """Field validator ensuring a valid http(s) url"""
+    if value is not None:
+        _http_url.validate_python(value)
+    return value

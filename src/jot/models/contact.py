@@ -1,16 +1,16 @@
-from pydantic import BaseModel, EmailStr, Field, HttpUrl
+from pydantic import BaseModel, EmailStr, Field, field_validator
 
-from jot.models.validation import FormModel, RowModel
+from jot.models.validation import FormModel, RowModel, check_http_url
 
 
 class ContactFields(BaseModel):
     """Shared schema columns for a professional contact."""
 
     company_id: int
-    name: str
+    contact_name: str
     email: str | None = None
     phone: str | None = None
-    job_title: str | None = None
+    title: str | None = None
     linkedin_url: str | None = None
     notes: str | None = None
 
@@ -21,11 +21,13 @@ class ContactForm(FormModel, ContactFields):
     company_id: int = Field(
         ..., gt=0, description="FK referencing companies.company_id"
     )
-    name: str = Field(..., min_length=1, max_length=100)
+    contact_name: str = Field(..., min_length=1, max_length=100)
     email: EmailStr | None = Field(None, max_length=100)
     phone: str | None = Field(None, max_length=20)
-    job_title: str | None = Field(None, max_length=100)
-    linkedin_url: HttpUrl | None = Field(None, max_length=200)
+    title: str | None = Field(None, max_length=100)
+    linkedin_url: str | None = Field(None, max_length=200)
+
+    _linkedin_url_valid = field_validator("linkedin_url")(check_http_url)
 
 
 class ContactNotesForm(FormModel):

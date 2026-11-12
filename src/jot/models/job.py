@@ -2,9 +2,9 @@ from datetime import date
 from enum import Enum
 from typing import Any
 
-from pydantic import BaseModel, Field, HttpUrl, model_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
-from jot.models.validation import FormModel, RowModel
+from jot.models.validation import FormModel, RowModel, check_http_url
 
 
 class JobType(str, Enum):
@@ -27,7 +27,7 @@ class JobFields(BaseModel):
     salary_max: int | None = None
     job_url: str | None = None
     date_posted: date | None = None
-    requirements: dict[str, Any] | None = None
+    requirements: list[str] | None = None
 
 
 class JobForm(FormModel, JobFields):
@@ -39,7 +39,9 @@ class JobForm(FormModel, JobFields):
     job_title: str = Field(..., min_length=1, max_length=100)
     salary_min: int | None = Field(None, ge=0)
     salary_max: int | None = Field(None, ge=0)
-    job_url: HttpUrl | None = Field(None, max_length=300)
+    job_url: str | None = Field(None, max_length=300)
+
+    _job_url_valid = field_validator("job_url")(check_http_url)
 
     @model_validator(mode="after")
     def validate_salary_range(self, Any) -> Any:
