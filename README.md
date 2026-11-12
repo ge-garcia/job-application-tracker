@@ -46,6 +46,20 @@ docker compose up -d
 
 And then visit the [website](http://localhost:5000)
 
+The scripts in `sql/` only run on a fresh volume: the schema, then sample data
+from `02_seed.sql`. To start over with a clean seed, remove the volume with
+`docker compose down -v`.
+
+### SQL Linting
+
+SQL is linted and formatted with [sqlfluff](https://docs.sqlfluff.com/), which
+is configured in `.sqlfluff`:
+
+```bash
+sqlfluff lint sql
+sqlfluff format sql
+```
+
 ## Project Structure
 
 ```
@@ -53,11 +67,13 @@ And then visit the [website](http://localhost:5000)
 ├── AGENTS.md
 ├── AI_USAGE.md                    # Project AI usage trace
 ├── .env                           # Configure database environment variables
+├── .sqlfluff                      # SQL lint and format configuration
 ├── docker-compose.yml
 ├── Dockerfile
 ├── requirements.txt
-├── sql                            # Base schema, applied in Docker compose directly
-│   └── 01_schema.sql
+├── sql                            # Applied in order by Docker compose on first start
+│   ├── 01_schema.sql
+│   └── 02_seed.sql                # Sample data for UI development and tests
 └── src
     └── jot
         ├── app.py                 # Core setup
@@ -84,7 +100,7 @@ And then visit the [website](http://localhost:5000)
 
 ## Roadmap
 
-- [ ] Seed the database with generated data
+- [x] Seed the database with generated data
 - [ ] Finalize JSON field types
 - [ ] Create basic CRUD routes for each table
 - [ ] Generate page routing layout and their respective templates

@@ -1,0 +1,4 @@
+[sqlfluff]
+dialect = mysql
+# The seed data is well past the default 20KB limit, which skips it silently
+large_file_skip_byte_limit = 0
