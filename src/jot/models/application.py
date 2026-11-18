@@ -1,8 +1,8 @@
-from datetime import date
+from datetime import date, datetime
 from enum import Enum
 from typing import Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from jot.models.validation import FormModel, RowModel
 
@@ -18,7 +18,43 @@ class ApplicationStatus(str, Enum):
     WITHDRAWN = "Withdrawn"
 
 
-# TODO: Design the type for the interview_data property, enforce validation on it
+class InterviewOutcome(str, Enum):
+    """Result states for an individual interview round"""
+
+    PENDING = "Pending"
+    PASSED = "Passed"
+    FAILED = "Failed"
+    CANCELLED = "Cancelled"
+
+
+class InterviewRound(BaseModel):
+    """Single interview stage inside applications.interview_data"""
+
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    type: str = Field(..., min_length=1, max_length=50)
+    scheduled_at: datetime
+    format: str | None = Field(None, max_length=50)
+    interviewers: list[str] = Field(default_factory=list)
+    outcome: InterviewOutcome = InterviewOutcome.PENDING
+    notes: str | None = None
+
+    @field_validator("interviewers", mode="before")
+    @classmethod
+    def parse_interviewers(cls, value: Any) -> list[str]:
+        if value is None:
+            return []
+        if isinstance(value, str):
+            return [name.strip() for name in value.split(",") if name.strip()]
+        return value
+
+
+class InterviewData(BaseModel):
+    """Structured schema for the applications.interview_data JSON column"""
+
+    rounds: list[InterviewRound] = Field(default_factory=list)
+
+
 class ApplicationFields(BaseModel):
     """Shared schema columns for a job application"""
 
@@ -27,7 +63,7 @@ class ApplicationFields(BaseModel):
     status: ApplicationStatus = ApplicationStatus.APPLIED
     resume_version: str | None = None
     cover_letter_sent: bool = False
-    interview_data: dict[str, Any] | None = None
+    interview_data: InterviewData | None = None
 
 
 class ApplicationForm(FormModel, ApplicationFields):

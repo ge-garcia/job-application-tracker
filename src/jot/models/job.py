@@ -16,7 +16,6 @@ class JobType(str, Enum):
     INTERNSHIP = "Internship"
 
 
-# TODO: Design the type for the requirements property, enforce validation on it
 class JobFields(BaseModel):
     """Shared schema columns for a job posting"""
 
@@ -43,6 +42,17 @@ class JobForm(FormModel, JobFields):
 
     _job_url_valid = field_validator("job_url")(check_http_url)
 
+    @field_validator("requirements", mode="before")
+    @classmethod
+    def parse_requirements(cls, value: Any) -> list[str] | None:
+        """Take a job form's requirements entry and strip, split, and collect it in a list (or return None)"""
+        if value is None:
+            return None
+        if isinstance(value, str):
+            items = [item.strip() for item in value.split(",") if item.strip()]
+            return items or None
+        return value
+
     @model_validator(mode="after")
     def validate_salary_range(self, Any) -> Any:
         salary_min = getattr(self, "salary_min", None)
@@ -67,4 +77,3 @@ class JobRow(RowModel, JobFields):
 
     job_id: int
     company_name: str | None = None
-    requirements: list[str] | None = None
