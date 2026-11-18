@@ -60,34 +60,53 @@ sqlfluff lint sql
 sqlfluff format sql
 ```
 
-## Project Structure
+## Architecture
+
+### Structure
 
 ```
 ├── README.md
 ├── AGENTS.md
 ├── AI_USAGE.md                    # Project AI usage trace
+├── requirements.txt               # Project dependencies
 ├── .env                           # Configure database environment variables
 ├── .sqlfluff                      # SQL lint and format configuration
-├── docker-compose.yml
-├── Dockerfile
-├── requirements.txt
+├── docker-compose.yml             # Containerized database and Flask app
+├── Dockerfile                     # Containerized database and Flask app
+├── tests                          # Test: validation & models, CRUD, matching
 ├── sql                            # Applied in order by Docker compose on first start
-│   ├── 01_schema.sql
+│   ├── 01_schema.sql              # Base schema
 │   └── 02_seed.sql                # Sample data for UI development and tests
 └── src
     └── jot
         ├── app.py                 # Core setup
         ├── db.py                  # Connection configuration
-        ├── core
-        │   └── models.py          # Core types and validation
-        ├── repositories           # TODO: CRUD operations
+        ├── models                 # Core types and validation
+        ├── repositories           # CRUD operations
+        ├── routes                 # Routes: templates loaded for requests and routing
+        ├── services               # Logic not tied to SQL or HTTP (matching)
         ├── static                 # CSS Styling
-        │   ├── style.css
-        │   └── theme.css
-        └── templates              # Components and pages
-            ├── base.html
-            └── index.html
+        └── templates              # Components, pages, errors
 ```
+
+With this setup, the request flow breaks down to:
+
+1. `routes/` parses the request on the client
+2. The request is then validated with `models/`
+3. Once validated, it calls out to `repositories/` or `services/`
+   - Based on if it is a CRUD operation or part of our matching algorithm
+4. The route then renders the appropriate template from `templates/`
+
+### Design
+
+Some core ideas here:
+
+- Since we don't have a user table, we can model the matching to be an algorithm
+  that runs off the url's query params.
+- Models define and validate our schema for our application
+- Repositories and services do DB and business logic
+- Templates exist for components and pages, which use classes reflected in CSS
+- There is a clean separation of concern among the described flow
 
 ## TODO
 
@@ -97,6 +116,7 @@ sqlfluff format sql
 - [ ] Record application submissions
 - [ ] Manage interview schedules
 - [ ] Store contact information
+- [ ] Match applications
 
 ## Roadmap
 
