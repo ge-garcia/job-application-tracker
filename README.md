@@ -108,6 +108,13 @@ Some core ideas here:
 - Templates exist for components and pages, which use classes reflected in CSS
 - There is a clean separation of concern among the described flow
 
+### Frontend
+
+Added Figma exports for some of the pages in `./assets/figma`, for example, the
+original dashboard design:
+
+![Dashboard Figma Wireframe](./assets/figma/dash.png)
+
 ## TODO
 
 ### Features in SPECIFICATION.md
@@ -118,11 +125,18 @@ Some core ideas here:
 - [ ] Store contact information
 - [ ] Match applications
 
-## Roadmap
+### Backlog
 
-- [x] Seed the database with generated data
-- [ ] Finalize JSON field types
+- [ ] Polish UI
+- [ ] Make matching algorithm
+
+### In Progress
+
 - [ ] Create basic CRUD routes for each table
 - [ ] Generate page routing layout and their respective templates
 - [ ] Create core components, layouts, and views
-- [ ] Polish UI
+
+### Done
+
+- [x] Seed the database with generated data
+- [x] Finalize JSON field types
