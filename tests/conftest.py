@@ -9,7 +9,7 @@ from mysql.connector.abstracts import MySQLCursorAbstract
 from jot.app import create_app
 
 # Route modules whose get_cursor/commit_db the `client` fixture patches
-ROUTE_MODULES = ("companies",)
+ROUTE_MODULES = ("companies", "jobs", "applications", "contacts")
 
 
 @pytest.fixture
