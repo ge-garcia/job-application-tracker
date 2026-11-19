@@ -1,7 +1,8 @@
 # COP-4751: Job Application Tracker: `jot`
 
 A web application project for COP-4751 at FIU. Built to help track job
-applications during the job search process.
+applications during the job search process. A [demo](https://cap.so/s/jrpx75qajzets72)
+was recorded as per the specification.
 
 ## Stack
 
@@ -35,6 +36,19 @@ py -m venv .venv
 .venv\Scripts\activate
 pip install -r requirements.txt
 pip install --no-build-isolation --no-deps -e .
+```
+
+Then create the database and load the schema and sample data into a local
+MySQL (8.0+).
+
+> [!NOTE]
+>
+> In `.env`, set `DB_PORT=3306`, since `3307` is only the Docker port:
+
+```bash
+mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS job_tracker;"
+mysql -u root -p job_tracker < sql/01_schema.sql
+mysql -u root -p job_tracker < sql/02_seed.sql
 ```
 
 And run the project (in that same virtual environment) with:
@@ -125,10 +139,3 @@ Some core ideas here:
 - Repositories and services do DB and business logic
 - Templates exist for components and pages, which use classes reflected in CSS
 - There is a clean separation of concern among the described flow
-
-### Frontend
-
-Added Figma exports for some of the pages in `./assets/figma`, for example, the
-original dashboard design:
-
-![Dashboard Figma Wireframe](./assets/figma/dash.png)
