@@ -9,8 +9,6 @@ from jot.routes.base import format_validation_errors
 
 bp = Blueprint("companies", __name__, url_prefix="/companies")
 
-# TODO: Add templates
-
 
 def _repo() -> CompanyRepository:
     """Build a request-scoped CompanyRepository"""
@@ -26,9 +24,22 @@ def index():
 
     return render_template(
         "companies.html",
+        mode="list",
         companies=companies,
+        industries=[],
         search=search or "",
-        selected_company=None,
+        selected_industry="",
+        sort="name_asc",
+    )
+
+
+@bp.get("/new")
+def new():
+    """Render the create company form"""
+    return render_template(
+        "companies.html",
+        mode="form",
+        company=None,
     )
 
 
@@ -43,16 +54,30 @@ def detail(company_id: int):
 
     return render_template(
         "companies.html",
-        companies=repo.list_all(),
-        search="",
-        selected_company=company,
+        mode="detail",
+        company=company,
+    )
+
+
+@bp.get("/<int:company_id>/edit")
+def edit(company_id: int):
+    """Render the edit company form"""
+    repo = _repo()
+    company = repo.get_by_id(company_id)
+    if company is None:
+        flash("Company not found", "error")
+        return redirect(url_for("companies.index"))
+
+    return render_template(
+        "companies.html",
+        mode="form",
+        company=company,
     )
 
 
 @bp.post("/")
 def create():
     """Validate and insert a new company"""
-    repo = _repo()
     try:
         form = CompanyForm.model_validate(request.form)
     except ValidationError as exc:
@@ -61,14 +86,14 @@ def create():
         return (
             render_template(
                 "companies.html",
-                companies=repo.list_all(),
-                search="",
-                selected_company=None,
+                mode="form",
+                company=None,
                 form_data=request.form,
             ),
             422,
         )
 
+    repo = _repo()
     new_id = repo.create(form)
     commit_db()
     flash(f"Added {form.company_name}", "success")
@@ -87,9 +112,8 @@ def update(company_id: int):
         return (
             render_template(
                 "companies.html",
-                companies=repo.list_all(),
-                search="",
-                selected_company=repo.get_by_id(company_id),
+                mode="form",
+                company=repo.get_by_id(company_id),
                 form_data=request.form,
             ),
             422,
