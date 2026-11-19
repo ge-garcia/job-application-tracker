@@ -1,5 +1,3 @@
-from typing import Any
-
 from jot.models import ApplicationForm, ApplicationRow, ApplicationStatusForm
 from jot.repositories.base import BaseRepository
 
@@ -18,14 +16,6 @@ _SELECT = """
     JOIN jobs j ON j.job_id = a.job_id
     JOIN companies c ON c.company_id = j.company_id
 """
-
-
-def _params(data: ApplicationForm) -> dict[str, Any]:
-    """to_params, with interview_data serialized by pydantic since json.dumps can't encode its datetimes"""
-    params = data.model_copy(update={"interview_data": None}).to_params()
-    if data.interview_data is not None:
-        params["interview_data"] = data.interview_data.model_dump_json()
-    return params
 
 
 class ApplicationRepository(BaseRepository):
@@ -61,7 +51,7 @@ class ApplicationRepository(BaseRepository):
 
     def create(self, data: ApplicationForm) -> int | None:
         """Inserts a new application and returns its generated application_id"""
-        params = _params(data)
+        params = data.to_params()
         sql = """
             INSERT INTO applications (
                 job_id,
@@ -84,7 +74,7 @@ class ApplicationRepository(BaseRepository):
 
     def update(self, application_id: int, data: ApplicationForm) -> bool:
         """Updates all editable fields on an application and returns True if the row changed"""
-        params = _params(data)
+        params = data.to_params()
         params["application_id"] = application_id
         sql = """
             UPDATE applications

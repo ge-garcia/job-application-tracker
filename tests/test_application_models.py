@@ -1,4 +1,4 @@
-from datetime import date
+import json
 from typing import Any
 
 import pytest
@@ -67,16 +67,34 @@ def test_interview_round_parses_interviewers() -> None:
 
 
 def test_application_form_to_params() -> None:
-    """to_params stores the status value and blanks as None"""
+    """to_params stores the status value, the date as ISO text, and blanks as None"""
     form = ApplicationForm.model_validate({**VALID, "status": "Offer", "resume_version": "  "})
 
     assert form.to_params() == {
         "job_id": 1,
-        "application_date": date(2026, 11, 1),
+        "application_date": "2026-11-01",
         "status": "Offer",
         "resume_version": None,
         "cover_letter_sent": False,
         "interview_data": None,
+    }
+
+
+def test_application_form_to_params_serializes_interview_rounds() -> None:
+    """to_params encodes interview_data as JSON, with each round's datetime and outcome as text"""
+    form = ApplicationForm.model_validate(_with_round(interviewers="Renee Castillo", outcome="Passed"))
+
+    assert json.loads(form.to_params()["interview_data"]) == {
+        "rounds": [
+            {
+                "type": "Phone screen",
+                "scheduled_at": "2026-11-20T10:00:00",
+                "format": None,
+                "interviewers": ["Renee Castillo"],
+                "outcome": "Passed",
+                "notes": None,
+            }
+        ]
     }
 
 

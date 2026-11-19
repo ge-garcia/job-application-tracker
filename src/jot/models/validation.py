@@ -5,7 +5,6 @@ Helper functions in use for validating data entries
 import contextlib
 import json
 from collections.abc import Mapping
-from enum import Enum
 from typing import Any, Self, TypeVar
 
 from pydantic import BaseModel, ConfigDict, HttpUrl, TypeAdapter, model_validator
@@ -36,14 +35,16 @@ class FormModel(BaseModel):
         return data
 
     def to_params(self, *, exclude_none: bool = False) -> dict[str, Any]:
-        """Serialize model fields into a MySQL-compatible parameter dictionary"""
-        raw = self.model_dump(exclude_none=exclude_none)
+        """Serialize model fields into a MySQL-compatible parameter dictionary
+
+        JSON mode dumps enums as their values, dates as ISO strings, and nested models as plain
+        data, so dict and list values (the JSON columns) are safe to pass through json.dumps
+        """
+        raw = self.model_dump(mode="json", exclude_none=exclude_none)
         params: dict[str, Any] = {}
 
         for key, val in raw.items():
             match val:
-                case Enum():
-                    params[key] = val.value
                 case dict() | list():
                     params[key] = json.dumps(val)
                 case _:

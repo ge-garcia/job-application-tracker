@@ -1,5 +1,3 @@
-from datetime import date
-
 import pytest
 from pydantic import ValidationError
 
@@ -51,7 +49,7 @@ def test_job_form_salary_range() -> None:
 
 
 def test_job_form_to_params() -> None:
-    """to_params stores the enum value, blanks as None, and requirements as a JSON array"""
+    """to_params stores the enum value, blanks as None, ISO dates, and requirements as a JSON array"""
     form = JobForm.model_validate(
         {
             **VALID,
@@ -70,6 +68,6 @@ def test_job_form_to_params() -> None:
         "salary_min": None,
         "salary_max": None,
         "job_url": None,
-        "date_posted": date(2026, 10, 14),
+        "date_posted": "2026-10-14",
         "requirements": '["Python", "SQL"]',
     }
