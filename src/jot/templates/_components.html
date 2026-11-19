@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+{% from "partials/button.html" import button %}
+{% from "partials/field.html" import field %}
+{% from "partials/stat_card.html" import stat_card %}
+{% from "partials/status_chip.html" import status_chip %}
+{% from "partials/table.html" import table, row, row_menu %}
+{% from "partials/delete_dialog.html" import delete_dialog, delete_button %}
+{% from "partials/empty_state.html" import empty_state %}
+{% from "partials/detail_item.html" import detail_item %}
+{% from "partials/match_result.html" import match_result %}
+
+{% block title %}Components{% endblock %}
+
+{% block head %}
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='_components.css') }}"
+  />
+{% endblock %}
+
+{% block content %}
+  {# Demo rows use the "demo" prefix so View and Delete never reach real records #}
+  {% set companies = ["TechCorp", "Globex", "Initech"] %}
+  {% set statuses = ["Applied", "Screening", "Interview", "Offer", "Rejected", "Withdrawn"] %}
+  {% set job_types = ["Full-time", "Part-time", "Contract", "Internship"] %}
+
+  <h1>Components</h1>
+  <p class="muted">
+    Every macro in <code>templates/partials/</code>, laid out like
+    <code>assets/figma/components.png</code>. The flash area above comes from
+    <code>base.html</code>.
+  </p>
+
+  <div class="gallery">
+    <figure>
+      <div class="actions">
+        {{ button("Button") }}
+        {{ button("Button", kind="secondary") }}
+        {{ button("Button", kind="danger") }}
+      </div>
+      <figcaption>button(label, kind, type, href, attrs)</figcaption>
+    </figure>
+
+    <figure class="w-field">
+      {{ field("label", "Label", "Value") }}
+      {{ field("label_error", "Label", "", required=true, error="Label is required") }}
+      <figcaption>field(name, label, value, type, required, error, options, placeholder, id, attrs)</figcaption>
+    </figure>
+
+    <figure class="w-card">
+      {{ stat_card("Label", 0) }}
+      <figcaption>stat_card(label, value)</figcaption>
+    </figure>
+
+    <figure>
+      <div class="chips">
+        {% for status in statuses %}{{ status_chip(status) }}{% endfor %}
+      </div>
+      <figcaption>status_chip(status)</figcaption>
+    </figure>
+
+    <figure class="w-wide">
+      {% call table(["Company", "Industry", "City", "State", "Website"], actions=true) %}
+        {{ row(
+          [{"text": "TechCorp", "href": "/demo/1"}, "Software", "Miami", "FL", {"text": "techcorp.example", "href": "https://techcorp.example"}],
+          prefix="demo", id=1, name="TechCorp", edit="#", note="Its contacts are deleted with it."
+        ) }}
+        {{ row(
+          [{"text": "Globex", "href": "/demo/2"}, "Fintech", "Austin", "TX", None],
+          prefix="demo", id=2, name="Globex"
+        ) }}
+        {{ row(
+          [{"text": "Initech", "href": "/demo/3"}, "Consulting", "Orlando", "FL", {"text": "initech.example", "href": "https://initech.example"}],
+          prefix="demo", id=3, name="Initech"
+        ) }}
+      {% endcall %}
+      <figcaption>table(columns, actions) + row(cells, prefix, id, name, view, edit, note); ⋯ opens the menu, Delete opens the dialog</figcaption>
+    </figure>
+
+    <figure class="w-wide">
+      {{ match_result("Software Developer", 3, 3, meta="TechCorp · Miami, FL", href="/demo/1") }}
+      {{ match_result("Backend Engineer", 2, 3, meta="Globex · Austin, TX", missing=["Docker"]) }}
+      {{ match_result("Data Analyst", 1, 4, meta="Initech · Orlando, FL", missing=["R", "Tableau", "dbt"]) }}
+      <figcaption>match_result(title, matched, total, meta, missing, href)</figcaption>
+    </figure>
+
+    <figure class="w-wide">
+      {{ empty_state(body="Add a company to start tracking jobs.", action="Add", href="#") }}
+      <figcaption>empty_state(title, body, action, href)</figcaption>
+    </figure>
+
+    <figure class="w-card">
+      <div class="stack">
+        {{ detail_item("Label", "Value") }}
+        {{ detail_item("Website", "techcorp.example", href="https://techcorp.example") }}
+        {{ detail_item("Cover letter sent", false) }}
+        {{ detail_item("Notes") }}
+      </div>
+      <figcaption>detail_item(label, value, href)</figcaption>
+    </figure>
+
+    <figure class="w-modal">
+      <div class="gallery-modal">
+        {{ delete_dialog("demo", 99, "TechCorp", note="Its contacts are deleted with it.") }}
+      </div>
+      <div class="actions">{{ delete_button("demo", 1) }}</div>
+      <figcaption>delete_dialog(prefix, id, name, note) + delete_button(prefix, id, label, kind); shown in place here, the button opens the live one</figcaption>
+    </figure>
+
+    <figure class="w-form">
+      <form class="form" method="get">
+        {{ field("company_name", "Company name", "TechCorp", required=true) }}
+        <div class="form-row">
+          {{ field("industry", "Industry", "Software") }}
+          {{ field("website", "Website", "https://techcorp.example", type="url") }}
+        </div>
+        <div class="form-row">
+          {{ field("city", "City", "Miami") }}
+          {{ field("state", "State", "FL") }}
+        </div>
+        {{ field("company_notes", "Notes", "Referral from career fair", type="textarea", attrs={"rows": 1}) }}
+        <div class="actions">
+          {{ button("Save", type="submit") }}
+          {{ button("Cancel", kind="secondary", href="#") }}
+        </div>
+      </form>
+      <figcaption>Company form: field + .form / .form-row / .actions</figcaption>
+    </figure>
+
+    <figure class="w-form">
+      <form class="form" method="get">
+        {{ field("job_company", "Company", "TechCorp", options=companies, required=true) }}
+        {{ field("job_title", "Job title", "Software Developer", required=true) }}
+        <div class="form-row">
+          {{ field("job_type", "Type", "Full-time", options=job_types, placeholder="") }}
+          {{ field("posted_date", "Date posted", "2026-10-14", type="date") }}
+        </div>
+        <div class="form-row">
+          {{ field("salary_min", "Salary min", 85000, type="number", attrs={"min": 0}) }}
+          {{ field("salary_max", "Salary max", 105000, type="number", attrs={"min": 0}) }}
+        </div>
+        {{ field("job_url", "Job URL", "https://www.techcorp.example/careers/software-developer", type="url") }}
+        {{ field("requirements", "Requirements (comma separated)", "Python, SQL, Flask") }}
+        <div class="actions">
+          {{ button("Save", type="submit") }}
+          {{ button("Cancel", kind="secondary", href="#") }}
+        </div>
+      </form>
+      <figcaption>Job form</figcaption>
+    </figure>
+
+    <figure class="w-form">
+      <form class="form" method="get">
+        {{ field("job_id", "Job", 1, options=[(1, "Software Developer at TechCorp"), (2, "Backend Engineer at Globex")], required=true) }}
+        <div class="form-row">
+          {{ field("application_date", "Application date", "2026-10-20", type="date", required=true) }}
+          {{ field("status", "Status", "Interview", options=statuses) }}
+        </div>
+        <div class="form-row">
+          {{ field("resume_version", "Resume version", "v3-backend") }}
+          {{ field("cover_letter_sent", "Cover letter sent", 1, options=[(1, "Yes"), (0, "No")], placeholder="") }}
+        </div>
+        {{ field("interview_rounds", "Interview rounds", "Phone screen, 2026-10-27, passed") }}
+        <div class="actions">
+          {{ button("Save", type="submit") }}
+          {{ button("Cancel", kind="secondary", href="#") }}
+        </div>
+      </form>
+      <figcaption>Application form</figcaption>
+    </figure>
+
+    <figure class="w-form">
+      <form class="form" method="get">
+        {{ field("contact_company", "Company", "TechCorp", options=companies, required=true) }}
+        <div class="form-row">
+          {{ field("contact_name", "Name", "Dana Rivera", required=true) }}
+          {{ field("contact_title", "Title", "Engineering Manager") }}
+        </div>
+        <div class="form-row">
+          {{ field("email", "Email", "dana@techcorp.example", type="email") }}
+          {{ field("phone", "Phone", "305-555-0142", type="tel") }}
+        </div>
+        {{ field("linkedin_url", "LinkedIn URL", "https://linkedin.com/in/example", type="url") }}
+        {{ field("contact_notes", "Notes", "Met at FIU career fair", type="textarea", attrs={"rows": 1}) }}
+        <div class="actions">
+          {{ button("Save", type="submit") }}
+          {{ button("Cancel", kind="secondary", href="#") }}
+        </div>
+      </form>
+      <figcaption>Contact form</figcaption>
+    </figure>
+
+    <figure>
+      <div class="gallery-menu">
+        {{ row_menu("demo", 0, "TechCorp", edit="#") }}
+      </div>
+      <figcaption>row_menu(prefix, id, name, view, edit, note): open state, View hovered</figcaption>
+    </figure>
+  </div>
+{% endblock %}

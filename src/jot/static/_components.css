@@ -1,0 +1,86 @@
+/*
+ * Throwaway layout for /_components, sized like the Figma library frame.
+ */
+
+main.container {
+  width: min(100% - 2rem, 90rem);
+}
+
+.gallery {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 3rem;
+
+  & figure {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    max-width: 100%;
+  }
+
+  & figcaption {
+    font:
+      var(--text-xs) / 1.4 ui-monospace,
+      SFMono-Regular,
+      Menlo,
+      monospace;
+    color: var(--tx-2);
+  }
+}
+
+.w-wide {
+  width: 70rem;
+}
+
+.w-form {
+  width: 40rem;
+}
+
+.w-modal {
+  width: 30rem;
+}
+
+.w-field {
+  width: 25rem;
+}
+
+.w-card {
+  width: 16.25rem;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  max-width: 16rem;
+}
+
+/* Show the modal and the open menu in place instead of in the top layer */
+.gallery-modal .modal {
+  display: block;
+  position: static;
+  width: 100%;
+  margin: 0;
+}
+
+.gallery-menu {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+
+  & .row-actions {
+    background: var(--ui-2);
+    color: var(--tx);
+  }
+
+  & .menu {
+    display: flex;
+    position: static;
+    margin: 0.25rem 0 0;
+  }
+
+  & .menu-item:first-child {
+    background: var(--ui-2);
+  }
+}
