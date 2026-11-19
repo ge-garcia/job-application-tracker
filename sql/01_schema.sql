@@ -39,7 +39,7 @@ CREATE TABLE applications (
         'Applied', 'Screening', 'Interview', 'Offer', 'Rejected', 'Withdrawn'
     ) DEFAULT 'Applied',
     resume_version VARCHAR(50),
-    cover_letter_sent BOOLEAN,
+    cover_letter_sent BOOLEAN DEFAULT FALSE,
     interview_data JSON,
 
     FOREIGN KEY (job_id) REFERENCES jobs (job_id) ON DELETE RESTRICT
