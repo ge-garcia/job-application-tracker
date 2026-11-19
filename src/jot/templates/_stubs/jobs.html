@@ -1,19 +1,175 @@
-{# Stub until templates/jobs.html is built: dumps whatever routes/jobs.py passes in #}
 {% extends "base.html" %}
+{% from "partials/button.html" import button %}
+{% from "partials/field.html" import field %}
+{% from "partials/table.html" import table, row %}
+{% from "partials/delete_dialog.html" import delete_dialog, delete_button %}
+{% from "partials/empty_state.html" import empty_state %}
+{% from "partials/detail_item.html" import detail_item %}
 
-{% block title %}Jobs{% endblock %}
+{% set delete_note = "Jobs with applications can't be deleted. Delete the applications first." %}
+
+{# Salary range as text; empty when neither bound is set, so the table cell shows a dash #}
+{% macro salary(low, high) -%}
+  {%- if low is not none and high is not none -%}
+    ${{ "{:,}".format(low) }} to ${{ "{:,}".format(high) }}
+  {%- elif low is not none -%}
+    ${{ "{:,}".format(low) }}+
+  {%- elif high is not none -%}
+    Up to ${{ "{:,}".format(high) }}
+  {%- endif -%}
+{%- endmacro %}
+
+{# Table date or datetime that never wraps; empty when unset, so the cell shows a dash #}
+{% macro date(value, format="%Y-%m-%d") -%}
+  {%- if value %}<time datetime="{{ value.isoformat() }}">{{ value.strftime(format) }}</time>{% endif -%}
+{%- endmacro %}
+
+{# Requirements as skill chips; empty when there are none, so detail_item shows a dash #}
+{% macro skills(requirements) -%}
+  {%- if requirements -%}
+    <span class="skills">
+      {%- for skill in requirements %}<span class="chip">{{ skill|trim }}</span>{% endfor -%}
+    </span>
+  {%- endif -%}
+{%- endmacro %}
+
+{% block title %}
+  {%- if mode == "detail" and job %}{{ job.job_title }}
+  {%- elif mode == "form" %}{{ "Edit job" if job else "Add job" }}
+  {%- else %}Jobs{% endif -%}
+{% endblock %}
 
 {% block content %}
-  <h1>Jobs: {{ mode }}</h1>
-  {% for name, value in [
-    ("search", search),
-    ("jobs", jobs),
-    ("job", job),
-    ("companies", companies),
-    ("job_types", job_types),
-    ("form_data", form_data),
-  ] if value is defined %}
-    <h2>{{ name }}</h2>
-    <pre>{{ value | pprint }}</pre>
+  {# Company options for the form, and for the list filter once the route passes companies there #}
+  {% set company_options = [] %}
+  {% for c in companies or [] %}
+    {% set _ = company_options.append((c.company_id, c.company_name)) %}
   {% endfor %}
+
+  {# LIST VIEW #}
+  {% if mode == "list" %}
+    <div class="page">
+      <div class="page-header">
+        <h1>Jobs</h1>
+        {{ button("+ Add job", href=url_for("jobs.new")) }}
+      </div>
+
+      <form class="toolbar" method="get" action="{{ url_for('jobs.index') }}">
+        {{ field("q", "Search", search, placeholder="Title or company") }}
+        {% if company_options %}
+          {{ field("company", "Company", selected_company, options=company_options, placeholder="All companies") }}
+        {% endif %}
+        {% if job_types %}
+          {{ field("job_type", "Type", selected_job_type, options=job_types|map(attribute="value")|list, placeholder="All types") }}
+        {% endif %}
+        {{ button("Filter", kind="secondary", type="submit") }}
+      </form>
+
+      {% if jobs %}
+        {% call table(["Title", "Company", "Type", "Posted", "Salary"], actions=true) %}
+          {% for job in jobs %}
+            {{ row(
+              [
+                {"text": job.job_title, "href": url_for("jobs.detail", job_id=job.job_id)},
+                job.company_name,
+                job.job_type.value if job.job_type else None,
+                date(job.date_posted),
+                salary(job.salary_min, job.salary_max)
+              ],
+              prefix="jobs", id=job.job_id, name=job.job_title,
+              edit=url_for("jobs.edit", job_id=job.job_id), note=delete_note
+            ) }}
+          {% endfor %}
+        {% endcall %}
+      {% elif search %}
+        {{ empty_state("No jobs found", body="Nothing matches “" ~ search ~ "”.") }}
+      {% else %}
+        {{ empty_state(
+          "No jobs yet",
+          body="Add a job posting to start tracking applications and matching your skills.",
+          action="+ Add job",
+          href=url_for("jobs.new")
+        ) }}
+      {% endif %}
+    </div>
+
+  {# DETAIL VIEW #}
+  {% elif mode == "detail" and job %}
+    <div class="page">
+      <div class="page-header">
+        <div>
+          <nav class="breadcrumb" aria-label="Breadcrumb">
+            <a href="{{ url_for('jobs.index') }}">Jobs</a> /
+            <span aria-current="page">{{ job.job_title }}</span>
+          </nav>
+          <h1>{{ job.job_title }}</h1>
+        </div>
+        <div class="actions">
+          {{ button("Edit", kind="secondary", href=url_for("jobs.edit", job_id=job.job_id)) }}
+          {{ delete_button("jobs", job.job_id) }}
+        </div>
+      </div>
+      {{ delete_dialog("jobs", job.job_id, job.job_title, note=delete_note) }}
+
+      <div class="panel details">
+        {{ detail_item("Company", job.company_name, href=url_for("companies.detail", company_id=job.company_id)) }}
+        {{ detail_item("Type", job.job_type.value if job.job_type else None) }}
+        {{ detail_item("Posted", job.date_posted) }}
+        {% if job.salary_min is not none or job.salary_max is not none %}
+          {{ detail_item("Salary", salary(job.salary_min, job.salary_max)) }}
+        {% endif %}
+        {{ detail_item("Job URL", job.job_url, href=job.job_url) }}
+        {{ detail_item("Requirements", skills(job.requirements)) }}
+      </div>
+    </div>
+
+  {# CREATE / EDIT FORM VIEW #}
+  {% elif mode == "form" %}
+    {% set values = (form_data if form_data is defined else job) or {} %}
+    {# A stored job holds a list; a re-rendered form holds the typed text #}
+    {% set requirements = values.requirements if values.requirements is string else (values.requirements or [])|join(", ") %}
+    <div class="page">
+      <div class="page-header">
+        <div>
+          <nav class="breadcrumb" aria-label="Breadcrumb">
+            <a href="{{ url_for('jobs.index') }}">Jobs</a> /
+            {% if job %}
+              <a href="{{ url_for('jobs.detail', job_id=job.job_id) }}">{{ job.job_title }}</a> /
+              <span aria-current="page">Edit</span>
+            {% else %}
+              <span aria-current="page">New</span>
+            {% endif %}
+          </nav>
+          <h1>{{ "Edit job" if job else "Add job" }}</h1>
+        </div>
+      </div>
+
+      <form
+        class="form"
+        method="post"
+        action="{{ url_for('jobs.update', job_id=job.job_id) if job else url_for('jobs.create') }}"
+      >
+        {{ field("company_id", "Company", values.company_id, required=true, options=company_options, placeholder="Select a company") }}
+        {{ field("job_title", "Job title", values.job_title, required=true, attrs={"maxlength": 100}) }}
+        <div class="form-row">
+          {{ field("job_type", "Type", values.job_type, options=job_types|map(attribute="value")|list, placeholder="") }}
+          {{ field("date_posted", "Date posted", values.date_posted, type="date") }}
+        </div>
+        <div class="form-row">
+          {{ field("salary_min", "Salary min", values.salary_min, type="number", attrs={"min": 0}) }}
+          {{ field("salary_max", "Salary max", values.salary_max, type="number", attrs={"min": 0}) }}
+        </div>
+        {{ field("job_url", "Job URL", values.job_url, type="url", attrs={"maxlength": 300}) }}
+        {{ field("requirements", "Requirements (comma separated)", requirements, placeholder="Python, SQL, Flask") }}
+        <div class="actions">
+          {{ button("Save", type="submit") }}
+          {{ button(
+            "Cancel",
+            kind="secondary",
+            href=url_for("jobs.detail", job_id=job.job_id) if job else url_for("jobs.index")
+          ) }}
+        </div>
+      </form>
+    </div>
+  {% endif %}
 {% endblock %}
