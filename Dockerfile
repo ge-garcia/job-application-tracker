@@ -1,7 +1,8 @@
 FROM python:3.12-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app/src
 
 WORKDIR /app
 
@@ -12,4 +13,4 @@ COPY src/ ./src/
 
 EXPOSE 5000
 # docker-compose.yml overrides this with --debug for development.
-CMD ["flask", "--app", "src/jot/app", "run", "--host", "0.0.0.0", "--port", "5000"]
+CMD ["flask", "--app", "jot.app", "run", "--host", "0.0.0.0", "--port", "5000"]

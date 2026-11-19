@@ -14,26 +14,40 @@ applications during the job search process.
 First, copy `.env.example` to `.env`, and modify the values as necessary for the
 connection. Then install dependencies:
 
+### With `uv` (recommended)
+
+```bash
+uv sync
+uv run --env-file .env flask --app jot.app run --debug
+```
+
+### With standard `pip`
+
 ```bash
 # unix
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+pip install --no-build-isolation --no-deps -e .
 
 # windows
 py -m venv .venv
 .venv\Scripts\activate
 pip install -r requirements.txt
-
-# with uv
-uv pip install -r requirements.txt
+pip install --no-build-isolation --no-deps -e .
 ```
 
 And run the project (in that same virtual environment) with:
 
 ```bash
-flask --app src/jot/app run --debug
+flask --app jot.app run --debug
 ```
+
+> **Note:** If you modify dependencies in `pyproject.toml`, re-export `requirements.txt` with:
+>
+> ```bash
+> uv export --no-dev --no-hashes -o requirements.txt
+> ```
 
 ### Docker
 
@@ -44,7 +58,7 @@ with the `job_tracker` database created. Run it with:
 docker compose up -d
 ```
 
-And then visit the [website](http://localhost:5000)
+And then visit [localhost:5000](http://localhost:5000)
 
 The scripts in `sql/` only run on a fresh volume: the schema, then sample data
 from `02_seed.sql`. To start over with a clean seed, remove the volume with
