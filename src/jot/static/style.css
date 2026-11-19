@@ -34,27 +34,74 @@
   --ma: light-dark(var(--flexoki-magenta-600), var(--flexoki-magenta-400));
   --ma-2: light-dark(var(--flexoki-magenta-400), var(--flexoki-magenta-600));
   --link: light-dark(var(--flexoki-cyan-600), var(--flexoki-cyan-400));
+
+  /* Tinted surfaces: `-chip` fill and `-ink` text for chips, plus `-wash` fill and `-edge` border for flashes */
+  --re-chip: light-dark(var(--flexoki-red-100), var(--flexoki-red-900));
+  --re-ink: light-dark(var(--flexoki-red-700), var(--flexoki-red-200));
+  --re-wash: light-dark(var(--flexoki-red-50), var(--flexoki-red-950));
+  --re-edge: light-dark(var(--flexoki-red-200), var(--flexoki-red-800));
+  --ye-chip: light-dark(var(--flexoki-yellow-100), var(--flexoki-yellow-900));
+  --ye-ink: light-dark(var(--flexoki-yellow-700), var(--flexoki-yellow-200));
+  --gr-chip: light-dark(var(--flexoki-green-100), var(--flexoki-green-900));
+  --gr-ink: light-dark(var(--flexoki-green-700), var(--flexoki-green-200));
+  --gr-wash: light-dark(var(--flexoki-green-50), var(--flexoki-green-950));
+  --gr-edge: light-dark(var(--flexoki-green-200), var(--flexoki-green-800));
+  --bl-chip: light-dark(var(--flexoki-blue-100), var(--flexoki-blue-900));
+  --bl-ink: light-dark(var(--flexoki-blue-700), var(--flexoki-blue-200));
+  --bl-wash: light-dark(var(--flexoki-blue-50), var(--flexoki-blue-950));
+  --bl-edge: light-dark(var(--flexoki-blue-200), var(--flexoki-blue-800));
+  --pu-chip: light-dark(var(--flexoki-purple-100), var(--flexoki-purple-900));
+  --pu-ink: light-dark(var(--flexoki-purple-700), var(--flexoki-purple-200));
+
+  /* Overlays, kept to the palette's black */
+  --shadow: light-dark(
+    color-mix(in srgb, var(--flexoki-black) 12%, transparent),
+    color-mix(in srgb, var(--flexoki-black) 45%, transparent)
+  );
+  --backdrop: color-mix(in srgb, var(--flexoki-black) 50%, transparent);
+
+  /* Type scale and shape, taken from the Figma component library */
+  --text-xs: 0.8125rem;
+  --text-sm: 0.875rem;
+  --text-md: 0.9375rem;
+  --text-lg: 1.125rem;
+  --radius-sm: 4px;
+  --radius: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --content-width: 70rem;
 }
 
 /* Reset some properties and apply theme */
 
-* {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+}
+
+body {
+  min-height: 100vh;
+  min-height: 100dvh;
   background: var(--bg);
   color: var(--tx);
   font:
-    1rem/1.6 system-ui,
+    1rem/1.4 Inter,
+    system-ui,
     -apple-system,
     "Segoe UI",
     Roboto,
     sans-serif;
 }
 
-body {
-  min-height: 100vh;
-  min-height: 100dvh;
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
 }
 
 h1,
@@ -88,11 +135,114 @@ small,
   color: var(--tx-2);
 }
 
+:focus-visible {
+  outline: 2px solid var(--bl);
+  outline-offset: 2px;
+}
+
 /* Some re-usable classes */
 
 .container {
+  width: min(100% - 2rem, var(--content-width));
+  margin-inline: auto;
+}
+
+main.container {
+  padding-block: 3rem;
+}
+
+.stack {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.actions-end {
+  justify-content: flex-end;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Layout: nav and flash area from `base.html` */
+
+.nav {
+  background: var(--bg-2);
+  border-bottom: 1px solid var(--ui);
+}
+
+.nav-inner {
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 6;
+  gap: 0.5rem 2rem;
+  min-height: 4rem;
+}
+
+.nav-brand {
+  /* Figma has a 10px spacer, with its own 32px gap, between the brand and the links */
+  margin-inline-end: calc(2rem + 0.625rem);
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--tx);
+  text-decoration: none;
+}
+
+.nav-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 2rem;
+  list-style: none;
+
+  & a {
+    font-size: var(--text-md);
+    color: var(--tx-2);
+    text-decoration: none;
+  }
+
+  & a:hover,
+  & a[aria-current="page"] {
+    color: var(--tx);
+  }
+}
+
+.flashes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+}
+
+.flash {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--bl-edge);
+  border-radius: var(--radius);
+  background: var(--bl-wash);
+  color: var(--bl-ink);
+  font-size: var(--text-md);
+}
+
+.flash-success {
+  border-color: var(--gr-edge);
+  background: var(--gr-wash);
+  color: var(--gr-ink);
+}
+
+.flash-error {
+  border-color: var(--re-edge);
+  background: var(--re-wash);
+  color: var(--re-ink);
 }
