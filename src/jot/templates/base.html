@@ -13,16 +13,48 @@
       rel="stylesheet"
       href="{{ url_for('static', filename='style.css') }}"
     />
+    {% block head %}{% endblock %}
   </head>
   <body>
-    <header>
-      <div class="container">
-        <p>Job Application Tracker</p>
-      </div>
+    {% set nav_items = [
+      ("/", "Dashboard"),
+      ("/companies/", "Companies"),
+      ("/jobs/", "Jobs"),
+      ("/applications/", "Applications"),
+      ("/contacts/", "Contacts"),
+      ("/match/", "Job Match"),
+    ] %}
+    <header class="nav">
+      <nav class="container nav-inner" aria-label="Main">
+        <a class="nav-brand" href="/">Job Application Tracker</a>
+        <ul class="nav-links">
+          {% for href, label in nav_items %}
+            {% set active = request.path == href if href == "/" else request.path.startswith(href) %}
+            <li>
+              <a href="{{ href }}"{% if active %} aria-current="page"{% endif %}>{{ label }}</a>
+            </li>
+          {% endfor %}
+        </ul>
+      </nav>
     </header>
 
     <main class="container">
-      {% block content %}
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="flashes">
+            {% for category, message in messages %}
+              <p
+                class="flash flash-{{ category }}"
+                role="{{ 'alert' if category == 'error' else 'status' }}"
+              >
+                {{ message }}
+              </p>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      {% block content %}{% endblock %}
     </main>
   </body>
 </html>
