@@ -12,4 +12,4 @@ init_db(app)
 
 @app.get("/")
 def index():
-    return render_template("dash.html")
+    return render_template("dashboard.html")
