@@ -6,6 +6,7 @@ from jot.routes.companies import bp as companies_bp
 from jot.routes.contacts import bp as contacts_bp
 from jot.routes.dashboard import bp as dashboard_bp
 from jot.routes.jobs import bp as jobs_bp
+from jot.routes.match import bp as match_bp
 
 
 def register_blueprints(app: Flask) -> None:
@@ -15,4 +16,5 @@ def register_blueprints(app: Flask) -> None:
     app.register_blueprint(jobs_bp)
     app.register_blueprint(applications_bp)
     app.register_blueprint(contacts_bp)
+    app.register_blueprint(match_bp)
     app.register_blueprint(components_bp)

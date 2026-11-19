@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% from "partials/button.html" import button %}
+{% from "partials/field.html" import field %}
+{% from "partials/empty_state.html" import empty_state %}
+{% from "partials/match_result.html" import match_result %}
+
+{% block title %}Job Match{% endblock %}
+
+{% block content %}
+  <div class="page">
+    <div class="page-header">
+      <div>
+        <h1>Job Match</h1>
+        <p class="match-intro">
+          Enter your skills to see which saved jobs you match, ranked by how many requirements you meet.
+        </p>
+      </div>
+    </div>
+
+    <form class="toolbar" method="get" action="{{ url_for('match.index') }}">
+      {{ field("skills", "Your skills (comma separated)", skills|join(", "), placeholder="Python, SQL, Flask") }}
+      {{ button("Match", type="submit") }}
+    </form>
+
+    {% if not skills %}
+      {{ empty_state("Add your skills", body="Type a few skills above, like Python, SQL, Excel, and press Match.") }}
+    {% elif results %}
+      <section class="stack" aria-labelledby="match-summary">
+        <p class="match-summary" id="match-summary">
+          {{ results|length }} {{ "job matches" if results|length == 1 else "jobs match" }}, best first
+        </p>
+        {% for result in results %}
+          {{ match_result(
+            result.job.job_title,
+            result.matched|length,
+            result.total,
+            meta=(result.job.company_name, result.job.job_type.value if result.job.job_type else None)|select|join(" · "),
+            missing=result.missing,
+            href=url_for("jobs.detail", job_id=result.job.job_id)
+          ) }}
+        {% endfor %}
+      </section>
+    {% else %}
+      {{ empty_state("No matching jobs", body="None of your saved jobs list any of these skills.") }}
+    {% endif %}
+  </div>
+{% endblock %}

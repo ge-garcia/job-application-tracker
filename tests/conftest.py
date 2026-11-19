@@ -6,8 +6,6 @@ import pytest
 from flask.testing import FlaskClient
 from mysql.connector.abstracts import MySQLCursorAbstract
 
-from jot.app import create_app
-
 # Route modules whose get_cursor/commit_db the `client` fixture patches
 ROUTE_MODULES = ("companies", "jobs", "applications", "contacts")
 
@@ -35,6 +33,8 @@ def client(cursor: MySQLCursorAbstract) -> Generator[FlaskClient, None, None]:
     Patches `get_cursor` to return `cursor` and turns `commit_db` into a flush-only no-op
     so route writes remain visible within the test transaction and roll back afterward.
     """
+    # Imported here so database-free tests (e.g. test_match.py) never open the pool in jot.db
+    from jot.app import create_app
 
     flask_app = create_app()
     flask_app.config["TESTING"] = True

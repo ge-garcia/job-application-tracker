@@ -797,3 +797,17 @@ textarea.field-input {
 .phone {
   white-space: nowrap;
 }
+
+/* match */
+
+.match-intro {
+  margin: 0.5rem 0 0;
+  font-size: var(--text-md);
+  color: var(--tx-2);
+}
+
+.match-summary {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--tx-2);
+}
