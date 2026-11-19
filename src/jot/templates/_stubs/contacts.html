@@ -1,0 +1,18 @@
+{# Stub until templates/contacts.html is built: dumps whatever routes/contacts.py passes in #}
+{% extends "base.html" %}
+
+{% block title %}Contacts{% endblock %}
+
+{% block content %}
+  <h1>Contacts: {{ mode }}</h1>
+  {% for name, value in [
+    ("search", search),
+    ("contacts", contacts),
+    ("contact", contact),
+    ("companies", companies),
+    ("form_data", form_data),
+  ] if value is defined %}
+    <h2>{{ name }}</h2>
+    <pre>{{ value | pprint }}</pre>
+  {% endfor %}
+{% endblock %}
