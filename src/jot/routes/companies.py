@@ -104,6 +104,11 @@ def create():
 def update(company_id: int):
     """Validate and update an existing company"""
     repo = _repo()
+    company = repo.get_by_id(company_id)
+    if company is None:
+        flash("Company not found", "error")
+        return redirect(url_for("companies.index"))
+
     try:
         form = CompanyForm.model_validate(request.form)
     except ValidationError as exc:
@@ -113,16 +118,14 @@ def update(company_id: int):
             render_template(
                 "companies.html",
                 mode="form",
-                company=repo.get_by_id(company_id),
+                company=company,
                 form_data=request.form,
             ),
             422,
         )
 
-    if not repo.update(company_id, form):
-        flash("Company not found", "error")
-        return redirect(url_for("companies.index"))
-
+    # Existence is checked above: MySQL reports 0 affected rows when nothing changed
+    repo.update(company_id, form)
     commit_db()
     flash(f"Updated {form.company_name}", "success")
     return redirect(url_for("companies.detail", company_id=company_id))
@@ -132,12 +135,12 @@ def update(company_id: int):
 def update_notes(company_id: int):
     """Update only the notes field for a company"""
     repo = _repo()
-    form = CompanyNotesForm.model_validate(request.form)
-
-    if not repo.update_notes(company_id, form):
+    if repo.get_by_id(company_id) is None:
         flash("Company not found", "error")
         return redirect(url_for("companies.index"))
 
+    form = CompanyNotesForm.model_validate(request.form)
+    repo.update_notes(company_id, form)
     commit_db()
     flash("Notes saved", "success")
     return redirect(url_for("companies.detail", company_id=company_id))

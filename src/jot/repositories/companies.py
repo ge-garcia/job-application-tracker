@@ -79,7 +79,7 @@ class CompanyRepository(BaseRepository):
         return self.cursor.lastrowid
 
     def update(self, company_id: int, data: CompanyForm) -> bool:
-        """Updates all editable fields on a company and returns True if a row matched"""
+        """Updates all editable fields on a company and returns True if the row changed"""
         params = data.to_params()
         params["company_id"] = company_id
         sql = """
@@ -96,7 +96,7 @@ class CompanyRepository(BaseRepository):
         return self.cursor.rowcount > 0
 
     def update_notes(self, company_id: int, data: CompanyNotesForm) -> bool:
-        """Updates only the notes column for a company, and returns True if a row matched"""
+        """Updates only the notes column for a company, and returns True if the row changed"""
         params = data.to_params()
         params["company_id"] = company_id
         sql = """
