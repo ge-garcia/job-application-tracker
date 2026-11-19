@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Companies — Job Application Tracker</title>
+  </head>
+  <body>
+    <header>
+      <nav aria-label="Primary">
+        <strong>Job Application Tracker</strong>
+        <a href="{{ url_for('index') }}">Dashboard</a>
+        <a href="{{ url_for('companies.index') }}" aria-current="page">Companies</a>
+        <a href="/jobs">Jobs</a>
+        <a href="/applications">Applications</a>
+        <a href="/contacts">Contacts</a>
+        <a href="/match">Job Match</a>
+      </nav>
+    </header>
+
+    <main>
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <ul class="flashes">
+            {% for category, message in messages %}
+              <li data-category="{{ category }}">{{ message }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      {% endwith %}
+
+      {# LIST VIEW #}
+      {% if mode == "list" %}
+        <section>
+          <div>
+            <h1>Companies</h1>
+            <a href="{{ url_for('companies.new') }}">+ Add company</a>
+          </div>
+
+          <form method="get" action="{{ url_for('companies.index') }}">
+            <label>
+              Search
+              <input
+                type="text"
+                name="q"
+                value="{{ search }}"
+                placeholder="Name or industry"
+              />
+            </label>
+
+            <label>
+              Industry
+              <select name="industry">
+                <option value="">All industries</option>
+                {% for ind in industries %}
+                  <option value="{{ ind }}" {{ "selected" if selected_industry == ind else "" }}>
+                    {{ ind }}
+                  </option>
+                {% endfor %}
+              </select>
+            </label>
+
+            <label>
+              Sort
+              <select name="sort">
+                <option value="name_asc" {{ "selected" if sort == "name_asc" else "" }}>
+                  Name A to Z
+                </option>
+                <option value="name_desc" {{ "selected" if sort == "name_desc" else "" }}>
+                  Name Z to A
+                </option>
+              </select>
+            </label>
+
+            <button type="submit">Filter</button>
+          </form>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Company</th>
+                <th>Industry</th>
+                <th>Location</th>
+                <th>Jobs</th>
+                <th>Contacts</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for c in companies %}
+                <tr>
+                  <td>
+                    <a href="{{ url_for('companies.detail', company_id=c.company_id) }}">
+                      {{ c.company_name }}
+                    </a>
+                  </td>
+                  <td>{{ c.industry or "—" }}</td>
+                  <td>
+                    {% if c.city and c.state %}
+                      {{ c.city }}, {{ c.state }}
+                    {% elif c.city or c.state %}
+                      {{ c.city or c.state }}
+                    {% else %}
+                      Remote
+                    {% endif %}
+                  </td>
+                  <td>{{ c.job_count | default(0) }}</td>
+                  <td>{{ c.contact_count | default(0) }}</td>
+                  <td>
+                    <a href="{{ url_for('companies.edit', company_id=c.company_id) }}">Edit</a>
+                  </td>
+                </tr>
+              {% else %}
+                <tr>
+                  <td colspan="6">No companies found.</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </section>
+
+      {# DETAIL VIEW #}
+      {% elif mode == "detail" and company %}
+        <section>
+          <nav aria-label="Breadcrumb">
+            <a href="{{ url_for('companies.index') }}">Companies</a> / {{ company.company_name }}
+          </nav>
+
+          <div>
+            <h1>{{ company.company_name }}</h1>
+            <a href="{{ url_for('companies.edit', company_id=company.company_id) }}">Edit</a>
+            <form method="post" action="{{ url_for('companies.delete', company_id=company.company_id) }}">
+              <button type="submit">Delete</button>
+            </form>
+          </div>
+
+          <dl>
+            <dt>Industry</dt>
+            <dd>{{ company.industry or "—" }}</dd>
+
+            <dt>Website</dt>
+            <dd>
+              {% if company.website %}
+                <a href="{{ company.website }}" target="_blank" rel="noopener">{{ company.website }}</a>
+              {% else %}
+                —
+              {% endif %}
+            </dd>
+
+            <dt>City</dt>
+            <dd>{{ company.city or "—" }}</dd>
+
+            <dt>State</dt>
+            <dd>{{ company.state or "—" }}</dd>
+
+            <dt>Notes</dt>
+            <dd>{{ company.notes or "—" }}</dd>
+          </dl>
+
+          <h2>Jobs</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Type</th>
+                <th>Posted</th>
+                <th>Salary</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for job in jobs | default([]) %}
+                <tr>
+                  <td><a href="/jobs/{{ job.job_id }}">{{ job.job_title }}</a></td>
+                  <td>{{ job.job_type or "—" }}</td>
+                  <td>{{ job.date_posted or "—" }}</td>
+                  <td>
+                    {% if job.salary_min is not none and job.salary_max is not none %}
+                      ${{ "{:,}".format(job.salary_min) }} to ${{ "{:,}".format(job.salary_max) }}
+                    {% elif job.salary_min is not none %}
+                      ${{ "{:,}".format(job.salary_min) }}+
+                    {% elif job.salary_max is not none %}
+                      Up to ${{ "{:,}".format(job.salary_max) }}
+                    {% else %}
+                      —
+                    {% endif %}
+                  </td>
+                  <td><a href="/jobs/{{ job.job_id }}">View</a></td>
+                </tr>
+              {% else %}
+                <tr>
+                  <td colspan="5">No jobs recorded.</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+
+          <h2>Contacts</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Title</th>
+                <th>Email</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for contact in contacts | default([]) %}
+                <tr>
+                  <td><a href="/contacts/{{ contact.contact_id }}">{{ contact.contact_name }}</a></td>
+                  <td>{{ contact.title or "—" }}</td>
+                  <td>{{ contact.email or "—" }}</td>
+                  <td><a href="/contacts/{{ contact.contact_id }}">View</a></td>
+                </tr>
+              {% else %}
+                <tr>
+                  <td colspan="4">No contacts recorded.</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </section>
+
+      {# CREATE / EDIT FORM VIEW #}
+      {% elif mode == "form" %}
+        {% set values = form_data if form_data is defined else company %}
+        <section>
+          <nav aria-label="Breadcrumb">
+            <a href="{{ url_for('companies.index') }}">Companies</a> /
+            {% if company %}
+              <a href="{{ url_for('companies.detail', company_id=company.company_id) }}">
+                {{ company.company_name }}
+              </a> / Edit
+            {% else %}
+              New
+            {% endif %}
+          </nav>
+
+          <h1>{{ "Edit company" if company else "Add company" }}</h1>
+
+          <form
+            method="post"
+            action="{{ url_for('companies.update', company_id=company.company_id) if company else url_for('companies.create') }}"
+          >
+            <label>
+              Company name *
+              <input
+                type="text"
+                name="company_name"
+                required
+                maxlength="100"
+                value="{{ values.company_name if values else '' }}"
+              />
+            </label>
+
+            <label>
+              Industry
+              <input
+                type="text"
+                name="industry"
+                maxlength="50"
+                value="{{ values.industry or '' if values else '' }}"
+              />
+            </label>
+
+            <label>
+              Website
+              <input
+                type="url"
+                name="website"
+                maxlength="200"
+                value="{{ values.website or '' if values else '' }}"
+              />
+            </label>
+
+            <label>
+              City
+              <input
+                type="text"
+                name="city"
+                maxlength="50"
+                value="{{ values.city or '' if values else '' }}"
+              />
+            </label>
+
+            <label>
+              State
+              <input
+                type="text"
+                name="state"
+                maxlength="50"
+                value="{{ values.state or '' if values else '' }}"
+              />
+            </label>
+
+            <label>
+              Notes
+              <textarea name="notes" rows="4">{{ values.notes or '' if values else '' }}</textarea>
+            </label>
+
+            <div>
+              <button type="submit">Save</button>
+              <a
+                href="{{ url_for('companies.detail', company_id=company.company_id) if company else url_for('companies.index') }}"
+              >
+                Cancel
+              </a>
+            </div>
+          </form>
+        </section>
+      {% endif %}
+    </main>
+  </body>
+</html>
