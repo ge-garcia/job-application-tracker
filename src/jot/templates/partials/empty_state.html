@@ -1,0 +1,14 @@
+{% from "partials/button.html" import button %}
+
+{# Placeholder for an empty list; `action` + `href` add a primary button, e.g. ("Add company", "#new") #}
+{% macro empty_state(title="Nothing here yet", body=None, action=None, href=None) -%}
+  <div class="empty-state">
+    <p class="empty-state-title">{{ title }}</p>
+    {%- if body %}
+      <p class="empty-state-body">{{ body }}</p>
+    {%- endif %}
+    {%- if action and href %}
+      {{ button(action, href=href) }}
+    {%- endif %}
+  </div>
+{%- endmacro %}

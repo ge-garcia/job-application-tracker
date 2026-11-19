@@ -1,0 +1,26 @@
+{#
+  Job Match card: `matched` of `total` required skills, e.g.
+    match_result("Software Developer", 2, 3, meta="TechCorp · Miami, FL", missing=["Docker"], href="/jobs/1")
+  The score is green from 75%, yellow from 50%, orange below.
+#}
+{% macro match_result(title, matched, total, meta=None, missing=(), href=None) -%}
+  {%- set percent = (matched / total * 100)|round|int if total else 0 -%}
+  {%- set level = "high" if percent >= 75 else "mid" if percent >= 50 else "low" -%}
+  <article class="match-result">
+    <div class="match-info">
+      <p class="match-title">
+        {%- if href %}<a href="{{ href }}">{{ title }}</a>{% else %}{{ title }}{% endif -%}
+      </p>
+      {%- if meta %}
+        <p class="match-meta">{{ meta }}</p>
+      {%- endif %}
+      {%- if missing %}
+        <p class="match-missing">Missing: {{ missing|join(", ") }}</p>
+      {%- endif %}
+    </div>
+    <div class="match-score">
+      <p class="match-percent match-{{ level }}">{{ percent }}%</p>
+      <p class="match-count">{{ matched }}/{{ total }} skills</p>
+    </div>
+  </article>
+{%- endmacro %}
