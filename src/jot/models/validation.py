@@ -2,6 +2,7 @@
 Helper functions in use for validating data entries
 """
 
+import contextlib
 import json
 from collections.abc import Mapping
 from enum import Enum
@@ -77,10 +78,8 @@ class RowModel(BaseModel):
             if isinstance(val, str) and key in cls.model_fields:
                 stripped = val.strip()
                 if stripped.startswith(("{", "[")):
-                    try:
+                    with contextlib.suppress(json.JSONDecodeError):
                         parsed[key] = json.loads(stripped)
-                    except json.JSONDecodeError:
-                        pass
 
         return cls.model_validate(parsed)
 

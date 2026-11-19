@@ -1,5 +1,5 @@
 from datetime import date, datetime
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
@@ -7,7 +7,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 from jot.models.validation import FormModel, RowModel
 
 
-class ApplicationStatus(str, Enum):
+class ApplicationStatus(StrEnum):
     """Lifecycle stages for a job application"""
 
     APPLIED = "Applied"
@@ -18,7 +18,7 @@ class ApplicationStatus(str, Enum):
     WITHDRAWN = "Withdrawn"
 
 
-class InterviewOutcome(str, Enum):
+class InterviewOutcome(StrEnum):
     """Result states for an individual interview round"""
 
     PENDING = "Pending"

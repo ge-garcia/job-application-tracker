@@ -1,5 +1,5 @@
 from datetime import date
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 from pydantic import BaseModel, Field, field_validator, model_validator
@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field, field_validator, model_validator
 from jot.models.validation import FormModel, RowModel, check_http_url
 
 
-class JobType(str, Enum):
+class JobType(StrEnum):
     """Employment classification types for job postings"""
 
     FULL_TIME = "Full-time"
