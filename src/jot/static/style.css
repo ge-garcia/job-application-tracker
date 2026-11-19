@@ -811,3 +811,21 @@ textarea.field-input {
   font-size: var(--text-sm);
   color: var(--tx-2);
 }
+
+/* dashboard */
+
+/* Status chips, each followed by its count */
+.status-counts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  list-style: none;
+
+  & li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: var(--text-sm);
+    font-weight: 600;
+  }
+}

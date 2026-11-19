@@ -1,7 +1,74 @@
-{% extends "base.html" %} {% block title %}Dashboard{% endblock %} {% block
-content %}
-<h1>Job Application Tracker</h1>
-<div class="container">
-  <p class="muted">Placeholder pending further development</p>
-</div>
+{% extends "base.html" %}
+{% from "partials/button.html" import button %}
+{% from "partials/stat_card.html" import stat_card %}
+{% from "partials/status_chip.html" import status_chip %}
+{% from "partials/table.html" import table, row %}
+{% from "partials/empty_state.html" import empty_state %}
+
+{# Table date or datetime that never wraps; empty when unset, so the cell shows a dash #}
+{% macro date(value, format="%Y-%m-%d") -%}
+  {%- if value %}<time datetime="{{ value.isoformat() }}">{{ value.strftime(format) }}</time>{% endif -%}
+{%- endmacro %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+  <div class="page">
+    <div class="page-header">
+      <h1>Dashboard</h1>
+      <div class="actions">
+        {{ button("Job Match", kind="secondary", href=url_for("match.index")) }}
+        {{ button("+ Add application", href=url_for("applications.new")) }}
+      </div>
+    </div>
+
+    <div class="stats">
+      {{ stat_card("Companies", stats.companies) }}
+      {{ stat_card("Jobs", stats.jobs) }}
+      {{ stat_card("Contacts", stats.contacts) }}
+      {{ stat_card("Applications", stats.applications) }}
+      {{ stat_card("Interviewing", stats.by_status["Interview"]) }}
+    </div>
+
+    <section>
+      <h2 class="section-title">Applications by status</h2>
+      <ul class="status-counts">
+        {% for status, count in stats.by_status.items() %}
+          <li>{{ status_chip(status.value) }} {{ count }}</li>
+        {% endfor %}
+      </ul>
+    </section>
+
+    <section>
+      <h2 class="section-title">Recent applications</h2>
+      {% if recent_applications %}
+        {% call table(["Job", "Company", "Applied", "Status"], actions=true) %}
+          {% for app in recent_applications %}
+            {{ row(
+              [
+                {"text": app.job_title, "href": url_for("applications.detail", application_id=app.application_id)},
+                app.company_name,
+                date(app.application_date),
+                status_chip(app.status.value)
+              ],
+              prefix="applications", id=app.application_id,
+              name="application for " ~ app.job_title ~ " at " ~ app.company_name,
+              edit=url_for("applications.edit", application_id=app.application_id)
+            ) }}
+          {% endfor %}
+        {% endcall %}
+      {% else %}
+        {{ empty_state(
+          "No applications yet",
+          body="Record an application to see it here.",
+          action="+ Add application",
+          href=url_for("applications.new")
+        ) }}
+      {% endif %}
+    </section>
+
+    {% if recent_applications %}
+      <p><a href="{{ url_for('applications.index') }}">View all applications</a></p>
+    {% endif %}
+  </div>
 {% endblock %}
