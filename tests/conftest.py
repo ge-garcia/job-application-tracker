@@ -1,6 +1,6 @@
 from collections.abc import Generator
+from unittest.mock import patch
 
-# from unittest.mock import patch
 import pytest
 from flask.testing import FlaskClient
 from mysql.connector.abstracts import MySQLCursorAbstract
@@ -34,9 +34,8 @@ def client(cursor: MySQLCursorAbstract) -> Generator[FlaskClient, None, None]:
 
     flask_app.config["TESTING"] = True
     with (
-        # TODO: setup cursor + transactions in routes
-        # patch("jot.routes.companies.get_cursor", return_value=cursor),
-        # patch("jot.routes.companies.commit_db"),
+        patch("jot.routes.companies.get_cursor", return_value=cursor),
+        patch("jot.routes.companies.commit_db"),
         flask_app.test_client() as test_client,
     ):
         yield test_client
