@@ -117,6 +117,10 @@ Some core ideas here:
 
 - Since we don't have a user table, we can model the matching to be an algorithm
   that runs off the url's query params.
+  - `GET /match/?skills=Python,SQL` scores each job by the share of its
+    `requirements` those skills cover (`services/match.py`). Matching ignores
+    case and whitespace, and a repeated skill counts once. Jobs with no
+    requirements, or with no matching skill, are left out.
 - Models define and validate our schema for our application
 - Repositories and services do DB and business logic
 - Templates exist for components and pages, which use classes reflected in CSS
@@ -128,29 +132,3 @@ Added Figma exports for some of the pages in `./assets/figma`, for example, the
 original dashboard design:
 
 ![Dashboard Figma Wireframe](./assets/figma/dash.png)
-
-## TODO
-
-### Features in SPECIFICATION.md
-
-- [ ] Track companies and job listings
-- [ ] Record application submissions
-- [ ] Manage interview schedules
-- [ ] Store contact information
-- [ ] Match applications
-
-### Backlog
-
-- [ ] Polish UI
-- [ ] Make matching algorithm
-
-### In Progress
-
-- [ ] Create basic CRUD routes for each table
-- [ ] Generate page routing layout and their respective templates
-- [ ] Create core components, layouts, and views
-
-### Done
-
-- [x] Seed the database with generated data
-- [x] Finalize JSON field types
