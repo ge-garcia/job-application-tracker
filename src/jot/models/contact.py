@@ -18,9 +18,7 @@ class ContactFields(BaseModel):
 class ContactForm(FormModel, ContactFields):
     """Validated form payload for creating or updating a contact"""
 
-    company_id: int = Field(
-        ..., gt=0, description="FK referencing companies.company_id"
-    )
+    company_id: int = Field(..., gt=0, description="FK referencing companies.company_id")
     contact_name: str = Field(..., min_length=1, max_length=100)
     email: EmailStr | None = Field(None, max_length=100)
     phone: str | None = Field(None, max_length=20)

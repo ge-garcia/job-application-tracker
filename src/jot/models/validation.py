@@ -28,10 +28,7 @@ class FormModel(BaseModel):
     def blank_to_none(cls, data: Any) -> Any:
         """Flattens empty strings in form responses (e.g., request.form) to None"""
         if isinstance(data, Mapping):
-            return {
-                k: None if isinstance(v, str) and not v.strip() else v
-                for k, v in data.items()
-            }
+            return {k: None if isinstance(v, str) and not v.strip() else v for k, v in data.items()}
         return data
 
     def to_params(self, *, exclude_none: bool = False) -> dict[str, Any]:

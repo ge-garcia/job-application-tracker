@@ -32,9 +32,7 @@ class JobFields(BaseModel):
 class JobForm(FormModel, JobFields):
     """Validated form payload for creating or updating a job posting"""
 
-    company_id: int = Field(
-        ..., gt=0, description="FK referencing companies.company_id"
-    )
+    company_id: int = Field(..., gt=0, description="FK referencing companies.company_id")
     job_title: str = Field(..., min_length=1, max_length=100)
     salary_min: int | None = Field(None, ge=0)
     salary_max: int | None = Field(None, ge=0)
@@ -60,13 +58,9 @@ class JobForm(FormModel, JobFields):
 
         match (salary_min, salary_max):
             case (salary_min, salary_max) if (
-                salary_min is not None
-                and salary_max is not None
-                and salary_max < salary_min
+                salary_min is not None and salary_max is not None and salary_max < salary_min
             ):
-                raise ValueError(
-                    "salary_max must be greater than or equal to salary_min"
-                )
+                raise ValueError("salary_max must be greater than or equal to salary_min")
             case _:
                 pass
         return self
