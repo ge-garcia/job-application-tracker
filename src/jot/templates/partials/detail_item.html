@@ -1,0 +1,18 @@
+{#
+  Label/value pair for detail panels; group several in a `.details` grid.
+  Empty values render as a dash, booleans as Yes/No, and `href` links the value.
+#}
+{% macro detail_item(label, value=None, href=None) -%}
+  <dl class="detail-item">
+    <dt>{{ label }}</dt>
+    {%- if value is none or value == "" %}
+      <dd class="muted">—</dd>
+    {%- elif href %}
+      <dd><a href="{{ href }}">{{ value }}</a></dd>
+    {%- elif value is sameas true or value is sameas false %}
+      <dd>{{ "Yes" if value else "No" }}</dd>
+    {%- else %}
+      <dd>{{ value }}</dd>
+    {%- endif %}
+  </dl>
+{%- endmacro %}

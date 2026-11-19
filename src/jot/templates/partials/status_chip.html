@@ -1,0 +1,16 @@
+{#
+  Pill for an ApplicationStatus or InterviewOutcome value; anything else is neutral.
+#}
+{% macro status_chip(status) -%}
+  {%- set tones = {
+    "Applied": "bl",
+    "Screening": "pu",
+    "Interview": "ye",
+    "Offer": "gr",
+    "Rejected": "re",
+    "Passed": "gr",
+    "Failed": "re",
+  } -%}
+  {%- set tone = tones.get(status|string) -%}
+  <span class="chip{% if tone %} chip-{{ tone }}{% endif %}">{{ status }}</span>
+{%- endmacro %}

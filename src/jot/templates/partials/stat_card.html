@@ -1,0 +1,7 @@
+{# Dashboard count, e.g. stat_card("Applications", 12) #}
+{% macro stat_card(label, value) -%}
+  <dl class="stat-card">
+    <dt class="stat-label">{{ label }}</dt>
+    <dd class="stat-value">{{ value }}</dd>
+  </dl>
+{%- endmacro %}
