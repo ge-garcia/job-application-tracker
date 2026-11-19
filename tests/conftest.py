@@ -8,6 +8,8 @@ from mysql.connector.abstracts import MySQLCursorAbstract
 
 # Route modules whose get_cursor/commit_db the `client` fixture patches
 ROUTE_MODULES = ("companies", "jobs", "applications", "contacts")
+# Read-only route modules, which never commit, so only get_cursor is patched
+READ_ONLY_ROUTE_MODULES = ("dashboard", "match")
 
 
 @pytest.fixture
@@ -42,4 +44,6 @@ def client(cursor: MySQLCursorAbstract) -> Generator[FlaskClient, None, None]:
         for module in ROUTE_MODULES:
             stack.enter_context(patch(f"jot.routes.{module}.get_cursor", return_value=cursor))
             stack.enter_context(patch(f"jot.routes.{module}.commit_db"))
+        for module in READ_ONLY_ROUTE_MODULES:
+            stack.enter_context(patch(f"jot.routes.{module}.get_cursor", return_value=cursor))
         yield stack.enter_context(flask_app.test_client())
