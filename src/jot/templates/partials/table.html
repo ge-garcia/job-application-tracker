@@ -1,0 +1,63 @@
+{% from "partials/delete_dialog.html" import delete_dialog %}
+
+{#
+  Data table; rows go in the call block:
+    {% call table(["Name", "City"], actions=true) %}
+      {{ row([{"text": c.company_name, "href": "/companies/" ~ c.company_id}, c.city],
+             prefix="companies", id=c.company_id, name=c.company_name) }}
+    {% endcall %}
+  Cells are values, or {"text", "href"} mappings to render as links.
+  With `prefix` and `id`, a row gets the ⋯ menu (View, optional Edit, Delete) and its delete dialog.
+#}
+{% macro table(columns, actions=false) -%}
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr>
+          {%- for column in columns %}
+            <th scope="col">{{ column }}</th>
+          {%- endfor %}
+          {%- if actions %}
+            <th class="cell-actions"><span class="visually-hidden">Actions</span></th>
+          {%- endif %}
+        </tr>
+      </thead>
+      <tbody>
+        {{- caller() }}
+      </tbody>
+    </table>
+  </div>
+{%- endmacro %}
+
+{% macro row_menu(prefix, id, name, view=None, edit=None, note=None) -%}
+  {%- set key = prefix ~ "-" ~ id -%}
+  <button type="button" class="row-actions" popovertarget="menu-{{ key }}" aria-label="Actions for {{ name }}">•••</button>
+  <div class="menu" id="menu-{{ key }}" popover>
+    <a class="menu-item" href="{{ view or '/' ~ prefix ~ '/' ~ id }}">View</a>
+    {%- if edit %}
+      <a class="menu-item" href="{{ edit }}">Edit</a>
+    {%- endif %}
+    <hr class="menu-divider" />
+    <button type="button" class="menu-item menu-item-danger" commandfor="delete-{{ key }}" command="show-modal">Delete</button>
+  </div>
+  {{ delete_dialog(prefix, id, name, note=note) }}
+{%- endmacro %}
+
+{% macro row(cells, prefix=None, id=None, name=None, view=None, edit=None, note=None) -%}
+  <tr>
+    {%- for cell in cells %}
+      {%- if cell is mapping %}
+        <td><a href="{{ cell.href }}">{{ cell.text }}</a></td>
+      {%- elif cell is none or cell == "" %}
+        <td class="muted">—</td>
+      {%- else %}
+        <td>{{ cell }}</td>
+      {%- endif %}
+    {%- endfor %}
+    {%- if prefix and id is not none %}
+      <td class="cell-actions">
+        {{ row_menu(prefix, id, name or prefix ~ " " ~ id, view=view, edit=edit, note=note) }}
+      </td>
+    {%- endif %}
+  </tr>
+{%- endmacro %}

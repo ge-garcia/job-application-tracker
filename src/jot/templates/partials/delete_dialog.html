@@ -1,0 +1,27 @@
+{% from "partials/button.html" import button %}
+
+{#
+  Confirmation modal posting to /<prefix>/<id>/delete, e.g. delete_dialog("companies", 3, "TechCorp").
+  note: optional cascade warning; open it with delete_button(prefix, id) or any
+  button with commandfor="delete-<prefix>-<id>" command="show-modal".
+#}
+{% macro delete_dialog(prefix, id, name, note=None) -%}
+  {%- set dialog_id = "delete-" ~ prefix ~ "-" ~ id -%}
+  <dialog id="{{ dialog_id }}" class="modal" aria-labelledby="{{ dialog_id }}-title">
+    <form class="modal-body" method="post" action="/{{ prefix }}/{{ id }}/delete">
+      <h2 class="modal-title" id="{{ dialog_id }}-title">Delete {{ name }}?</h2>
+      <p class="modal-text">This permanently deletes the record.</p>
+      {%- if note %}
+        <p class="modal-note">{{ note }}</p>
+      {%- endif %}
+      <div class="actions actions-end">
+        {{ button("Cancel", kind="secondary", type="submit", attrs={"formmethod": "dialog"}) }}
+        {{ button("Delete", kind="danger", type="submit") }}
+      </div>
+    </form>
+  </dialog>
+{%- endmacro %}
+
+{% macro delete_button(prefix, id, label="Delete", kind="danger") -%}
+  {{ button(label, kind=kind, attrs={"commandfor": "delete-" ~ prefix ~ "-" ~ id, "command": "show-modal"}) }}
+{%- endmacro %}
