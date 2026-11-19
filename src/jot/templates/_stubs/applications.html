@@ -1,0 +1,19 @@
+{# Stub until templates/applications.html is built: dumps whatever routes/applications.py passes in #}
+{% extends "base.html" %}
+
+{% block title %}Applications{% endblock %}
+
+{% block content %}
+  <h1>Applications: {{ mode }}</h1>
+  {% for name, value in [
+    ("search", search),
+    ("applications", applications),
+    ("application", application),
+    ("jobs", jobs),
+    ("statuses", statuses),
+    ("form_data", form_data),
+  ] if value is defined %}
+    <h2>{{ name }}</h2>
+    <pre>{{ value | pprint }}</pre>
+  {% endfor %}
+{% endblock %}
