@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% from "partials/empty_state.html" import empty_state %}
+
+{% block title %}Something went wrong{% endblock %}
+
+{% block content %}
+  {{ empty_state(
+    "Something went wrong",
+    body="The server couldn't finish that request. Try again in a moment.",
+    action="Back to dashboard",
+    href=url_for("dashboard.index")
+  ) }}
+{% endblock %}
