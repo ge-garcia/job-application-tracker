@@ -1,0 +1,48 @@
+{#
+  Label + control + error message.
+  type: any <input> type, or "textarea"; passing `options` renders a <select>
+  options: values, or (value, label) pairs
+  placeholder: for a <select>, the label of an empty first option
+#}
+{% macro _control_attrs(id, name, required, error, attrs) -%}
+  {{ " " }}id="{{ id }}" name="{{ name }}"
+  {%- if required %} required{% endif %}
+  {%- if error %} aria-invalid="true" aria-describedby="{{ id }}-error"{% endif %}
+  {{- attrs|xmlattr }}
+{%- endmacro %}
+
+{% macro field(
+  name,
+  label,
+  value=None,
+  type="text",
+  required=false,
+  error=None,
+  options=None,
+  placeholder=None,
+  id=None,
+  attrs={}
+) -%}
+  {%- set id = id or name -%}
+  <div class="field">
+    <label class="field-label" for="{{ id }}">{{ label }}{% if required %} *{% endif %}</label>
+    {%- if options is not none %}
+      <select class="field-input"{{ _control_attrs(id, name, required, error, attrs) }}>
+        {%- if placeholder is not none %}
+          <option value="">{{ placeholder }}</option>
+        {%- endif %}
+        {%- for option in options %}
+          {%- set option_value, option_label = (option, option) if option is string or option is number else option %}
+          <option value="{{ option_value }}"{% if value is not none and option_value|string == value|string %} selected{% endif %}>{{ option_label }}</option>
+        {%- endfor %}
+      </select>
+    {%- elif type == "textarea" %}
+      <textarea class="field-input"{{ _control_attrs(id, name, required, error, attrs) }}{% if placeholder %} placeholder="{{ placeholder }}"{% endif %}>{{ value if value is not none }}</textarea>
+    {%- else %}
+      <input class="field-input" type="{{ type }}" value="{{ value if value is not none }}"{{ _control_attrs(id, name, required, error, attrs) }}{% if placeholder %} placeholder="{{ placeholder }}"{% endif %} />
+    {%- endif %}
+    {%- if error %}
+      <p class="field-error" id="{{ id }}-error">{{ error }}</p>
+    {%- endif %}
+  </div>
+{%- endmacro %}
