@@ -1,11 +1,15 @@
 from collections.abc import Generator
+from contextlib import ExitStack
 from unittest.mock import patch
 
 import pytest
 from flask.testing import FlaskClient
 from mysql.connector.abstracts import MySQLCursorAbstract
 
-from jot.app import app as flask_app
+from jot.app import create_app
+
+# Route modules whose get_cursor/commit_db the `client` fixture patches
+ROUTE_MODULES = ("companies",)
 
 
 @pytest.fixture
@@ -32,10 +36,10 @@ def client(cursor: MySQLCursorAbstract) -> Generator[FlaskClient, None, None]:
     so route writes remain visible within the test transaction and roll back afterward.
     """
 
+    flask_app = create_app()
     flask_app.config["TESTING"] = True
-    with (
-        patch("jot.routes.companies.get_cursor", return_value=cursor),
-        patch("jot.routes.companies.commit_db"),
-        flask_app.test_client() as test_client,
-    ):
-        yield test_client
+    with ExitStack() as stack:
+        for module in ROUTE_MODULES:
+            stack.enter_context(patch(f"jot.routes.{module}.get_cursor", return_value=cursor))
+            stack.enter_context(patch(f"jot.routes.{module}.commit_db"))
+        yield stack.enter_context(flask_app.test_client())

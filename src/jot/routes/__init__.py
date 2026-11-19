@@ -1,8 +1,12 @@
 from flask import Flask
 
+from jot.routes._components import bp as components_bp
 from jot.routes.companies import bp as companies_bp
+from jot.routes.dashboard import bp as dashboard_bp
 
 
 def register_blueprints(app: Flask) -> None:
     """Register all route blueprints on the Flask application"""
+    app.register_blueprint(dashboard_bp)
     app.register_blueprint(companies_bp)
+    app.register_blueprint(components_bp)
