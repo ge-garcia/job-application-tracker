@@ -791,3 +791,9 @@ textarea.field-input {
   flex-wrap: wrap;
   gap: 0.375rem;
 }
+
+/* contacts */
+
+.phone {
+  white-space: nowrap;
+}

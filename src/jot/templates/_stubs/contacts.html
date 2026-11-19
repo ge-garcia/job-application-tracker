@@ -1,18 +1,145 @@
-{# Stub until templates/contacts.html is built: dumps whatever routes/contacts.py passes in #}
 {% extends "base.html" %}
+{% from "partials/button.html" import button %}
+{% from "partials/field.html" import field %}
+{% from "partials/table.html" import table, row %}
+{% from "partials/delete_dialog.html" import delete_dialog, delete_button %}
+{% from "partials/empty_state.html" import empty_state %}
+{% from "partials/detail_item.html" import detail_item %}
 
-{% block title %}Contacts{% endblock %}
+{# Table phone number that never wraps; empty when unset, so the cell shows a dash #}
+{% macro phone(value) -%}
+  {%- if value %}<span class="phone">{{ value }}</span>{% endif -%}
+{%- endmacro %}
+
+{% block title %}
+  {%- if mode == "detail" and contact %}{{ contact.contact_name }}
+  {%- elif mode == "form" %}{{ "Edit contact" if contact else "Add contact" }}
+  {%- else %}Contacts{% endif -%}
+{% endblock %}
 
 {% block content %}
-  <h1>Contacts: {{ mode }}</h1>
-  {% for name, value in [
-    ("search", search),
-    ("contacts", contacts),
-    ("contact", contact),
-    ("companies", companies),
-    ("form_data", form_data),
-  ] if value is defined %}
-    <h2>{{ name }}</h2>
-    <pre>{{ value | pprint }}</pre>
+  {# Company options for the form, and for the list filter once the route passes companies there #}
+  {% set company_options = [] %}
+  {% for c in companies or [] %}
+    {% set _ = company_options.append((c.company_id, c.company_name)) %}
   {% endfor %}
+
+  {# LIST VIEW #}
+  {% if mode == "list" %}
+    <div class="page">
+      <div class="page-header">
+        <h1>Contacts</h1>
+        {{ button("+ Add contact", href=url_for("contacts.new")) }}
+      </div>
+
+      <form class="toolbar" method="get" action="{{ url_for('contacts.index') }}">
+        {{ field("q", "Search", search, placeholder="Name or email") }}
+        {% if company_options %}
+          {{ field("company", "Company", selected_company, options=company_options, placeholder="All companies") }}
+        {% endif %}
+        {{ button("Filter", kind="secondary", type="submit") }}
+      </form>
+
+      {% if contacts %}
+        {% call table(["Name", "Company", "Title", "Email", "Phone"], actions=true) %}
+          {% for contact in contacts %}
+            {{ row(
+              [
+                {"text": contact.contact_name, "href": url_for("contacts.detail", contact_id=contact.contact_id)},
+                contact.company_name,
+                contact.title,
+                {"text": contact.email, "href": "mailto:" ~ contact.email} if contact.email else None,
+                phone(contact.phone)
+              ],
+              prefix="contacts", id=contact.contact_id, name=contact.contact_name,
+              edit=url_for("contacts.edit", contact_id=contact.contact_id)
+            ) }}
+          {% endfor %}
+        {% endcall %}
+      {% elif search %}
+        {{ empty_state("No contacts found", body="Nothing matches “" ~ search ~ "”.") }}
+      {% else %}
+        {{ empty_state(
+          "No contacts yet",
+          body="Add the recruiters and hiring managers you talk to.",
+          action="+ Add contact",
+          href=url_for("contacts.new")
+        ) }}
+      {% endif %}
+    </div>
+
+  {# DETAIL VIEW #}
+  {% elif mode == "detail" and contact %}
+    <div class="page">
+      <div class="page-header">
+        <div>
+          <nav class="breadcrumb" aria-label="Breadcrumb">
+            <a href="{{ url_for('contacts.index') }}">Contacts</a> /
+            <span aria-current="page">{{ contact.contact_name }}</span>
+          </nav>
+          <h1>{{ contact.contact_name }}</h1>
+        </div>
+        <div class="actions">
+          {{ button("Edit", kind="secondary", href=url_for("contacts.edit", contact_id=contact.contact_id)) }}
+          {{ delete_button("contacts", contact.contact_id) }}
+        </div>
+      </div>
+      {{ delete_dialog("contacts", contact.contact_id, contact.contact_name) }}
+
+      <div class="panel details">
+        {{ detail_item("Company", contact.company_name, href=url_for("companies.detail", company_id=contact.company_id)) }}
+        {{ detail_item("Title", contact.title) }}
+        {{ detail_item("Email", contact.email, href="mailto:" ~ contact.email if contact.email) }}
+        {{ detail_item("Phone", contact.phone) }}
+        {{ detail_item("LinkedIn", contact.linkedin_url, href=contact.linkedin_url) }}
+        {{ detail_item("Notes", contact.notes) }}
+      </div>
+    </div>
+
+  {# CREATE / EDIT FORM VIEW #}
+  {% elif mode == "form" %}
+    {% set values = (form_data if form_data is defined else contact) or {} %}
+    <div class="page">
+      <div class="page-header">
+        <div>
+          <nav class="breadcrumb" aria-label="Breadcrumb">
+            <a href="{{ url_for('contacts.index') }}">Contacts</a> /
+            {% if contact %}
+              <a href="{{ url_for('contacts.detail', contact_id=contact.contact_id) }}">{{ contact.contact_name }}</a> /
+              <span aria-current="page">Edit</span>
+            {% else %}
+              <span aria-current="page">New</span>
+            {% endif %}
+          </nav>
+          <h1>{{ "Edit contact" if contact else "Add contact" }}</h1>
+        </div>
+      </div>
+
+      <form
+        class="form"
+        method="post"
+        action="{{ url_for('contacts.update', contact_id=contact.contact_id) if contact else url_for('contacts.create') }}"
+      >
+        {{ field("company_id", "Company", values.company_id, required=true, options=company_options, placeholder="Select a company") }}
+        <div class="form-row">
+          {{ field("contact_name", "Name", values.contact_name, required=true, attrs={"maxlength": 100}) }}
+          {{ field("title", "Title", values.title, attrs={"maxlength": 100}) }}
+        </div>
+        <div class="form-row">
+          {{ field("email", "Email", values.email, type="email", attrs={"maxlength": 100}) }}
+          {{ field("phone", "Phone", values.phone, type="tel", attrs={"maxlength": 20}) }}
+        </div>
+        {{ field("linkedin_url", "LinkedIn URL", values.linkedin_url, type="url", attrs={"maxlength": 200}) }}
+        {{ field("notes", "Notes", values.notes, type="textarea", attrs={"rows": 4}) }}
+        <div class="actions">
+          {{ button("Save", type="submit") }}
+          {{ button(
+            "Cancel",
+            kind="secondary",
+            href=url_for("contacts.detail", contact_id=contact.contact_id) if contact else url_for("contacts.index")
+          ) }}
+        </div>
+      </form>
+    </div>
+  {% endif %}
 {% endblock %}
