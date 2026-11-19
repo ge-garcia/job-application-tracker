@@ -9,6 +9,11 @@
   `static/`, `base.html`, and the `/_components` preview page. It read the
   Figma file through the Figma MCP server and checked the result with headless
   Chrome screenshots.
+- Claude Code (CLI) with Claude Opus 5.5 (`claude-opus-5-5`, 1M context) for
+  integrating the `feat/ui` macros into `templates/companies.html`, plus the
+  shared page layout classes in `static/style.css`, in the merge of the tests
+  setup and `feat/ui`. It checked the views against `assets/figma/companies.png`
+  with headless Chrome screenshots and ran the existing test suite.
 
 ## Key Prompts
 
@@ -33,6 +38,9 @@
    that renders every macro, so it can be compared against components.png. Out
    of scope: page templates, routes other than /_components, Python." (Plus the
    Figma links and `jj` workflow, commit, and file-ownership instructions.)
+3. "In this merge commit, go ahead and integrate our components from the
+   feat/ui bookmark into the new companies template. Update AI_USAGE.md
+   accordingly."
 
 ## What Worked Well
 
