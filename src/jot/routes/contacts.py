@@ -11,8 +11,7 @@ from jot.routes.base import format_validation_errors
 
 bp = Blueprint("contacts", __name__, url_prefix="/contacts")
 
-# Swap for "contacts.html" once the page template exists
-TEMPLATE = "_stubs/contacts.html"
+TEMPLATE = "contacts.html"
 
 
 def _repo() -> ContactRepository:

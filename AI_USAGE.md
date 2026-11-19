@@ -86,6 +86,11 @@ diffs. That being said typical follow up prompts did exist (e.g. 'This test is
 superflous' or 'This behavior is ommitted from testing'), and I retained my
 typical review flow, steering where necessary.
 
+More concrete example of fixes when I had to step in so to speak:
+
+- Commit `7e06bf3a`, **fix(models): dump to_params in JSON mode so nested models serialize**
+- Commit `3a250a23`, **fix(companies): check the company exists before updating**
+
 ## Lessons Learned
 
 - Parallel work (even with good use of version control) can be a little tricky

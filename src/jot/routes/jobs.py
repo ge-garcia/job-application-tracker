@@ -13,8 +13,7 @@ from jot.routes.base import format_validation_errors
 
 bp = Blueprint("jobs", __name__, url_prefix="/jobs")
 
-# Swap for "jobs.html" once the page template exists
-TEMPLATE = "_stubs/jobs.html"
+TEMPLATE = "jobs.html"
 
 
 def _repo() -> JobRepository:
